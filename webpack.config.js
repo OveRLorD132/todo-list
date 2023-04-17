@@ -3,10 +3,10 @@ let path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/Registration/registration.js',
+    entry: './src/Main/main.js',
     output: {
-        path: path.resolve(__dirname, 'public', 'javascripts', 'Registration'),
-        filename: 'registration.js',
+        path: path.resolve(__dirname, 'public', 'javascripts', 'Main'),
+        filename: 'main.js',
         clean: true
     },
     module: {

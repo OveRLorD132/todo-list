@@ -8,7 +8,8 @@ let session = require('express-session');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 let authRoot = require('./routes/auth');
-
+let mainRouter = require('./routes/main');
+let tasksRoute = require('./routes/tasks-handling');
 var app = express();
 
 let {sessionMiddleware} = require('./module/middlewares/express-middlewares');
@@ -26,9 +27,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+//app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use(mainRouter);
 app.use(authRoot);
+app.use(tasksRoute);
+
 
 
 // catch 404 and forward to error handler
