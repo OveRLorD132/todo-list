@@ -78,6 +78,15 @@ class Database {
             });
         });
     }
+    deleteLine(id) {
+        return new Promise((resolve, reject) => {
+            console.log(id);
+            this.db.query(`DELETE FROM tasks WHERE task_id = ?`, [id], (err) => {
+                if(err) reject(err);
+                resolve();
+            });
+        });
+    }
 }
 
 

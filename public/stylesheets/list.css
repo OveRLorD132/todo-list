@@ -52,7 +52,14 @@
 }
 
 #impImg {
+    padding-right: 2vh;
     cursor: pointer;
+    width: 2.5vh;
+    height: 2.5vh;
+}
+
+#deleteImg {
+    padding-top: 0.5vh;
     width: 2.5vh;
     height: 2.5vh;
 }
@@ -89,6 +96,7 @@
 }
 
 .buttons {
+    margin-right: 4vh;
     display: flex;
     align-content: center;
 }
@@ -110,7 +118,6 @@
 .toImportantButt {
     display: flex;
     align-items: center;
-    margin-right: 4vh;
 }
 
 .channel {

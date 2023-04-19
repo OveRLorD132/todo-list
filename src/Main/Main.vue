@@ -41,6 +41,8 @@
                         @mouseover="changePic(task)"
                         @mouseleave="restorePic(task)"
                         class="toImportantButt"><img id="impImg" :src="task.picSrc"></div>
+                        <div @click="deleteElem(task)"
+                        id="deleteButt"><img id="deleteImg" src="/images/delete.png"></div>
                     </div>
                 </div>
             </div>
@@ -141,6 +143,17 @@ export default {
                 }
             });
         },
+        deleteElem(task) {
+            axios.delete('/tasks/delete/task', { data: task}).then((response) => {
+                console.log(response);
+                for(let ind in this.tasks) {
+                    if(this.tasks[ind].task_id === task.task_id) {
+                        this.tasks.splice(ind, 1);
+                        break;
+                    }
+                }
+            });
+        },
         showTasks(tasks) {
             this.tasks = tasks.filter(task => {
                 if(task.type !== "Important") task.picSrc = "/images/imp_not_chosen.png";
@@ -156,7 +169,7 @@ export default {
             if(task.type !== "Important") task.picSrc = "/images/imp_not_chosen.png";
         }
     }
-    }
+}
 
 </script>
 

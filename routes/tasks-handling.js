@@ -29,4 +29,15 @@ router.patch('/tasks/update/type', (req, res) => {
     });
 });
 
+router.delete('/tasks/delete/task', (req, res) => {
+    database.deleteLine(req.body.task_id).then(() => {
+        console.log('Deleted');
+        res.end('Success.');
+    }).catch(err => {
+        console.log(err);
+        res.end(`This line doesn't exist.`);
+    });
+
+});
+
 module.exports = router;
