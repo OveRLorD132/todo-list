@@ -38,16 +38,44 @@ class Database {
             });
         });
     }
-    addToList(id, task) {
-        this.db.query(`INSERT INTO tasks (id, text) VALUES (?, ?)`, [id, task], (err) => {
-            if(err) throw new Error();
+    addToList(id, task, type) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`INSERT INTO tasks (id, text, type) VALUES (?, ?, ?)`, [id, task, type], (err) => {
+                if(err) reject(err);
+                this.db.query(`SELECT LAST_INSERT_ID()`, (err, lastId) => {
+                    if(err) reject(err);
+                    console.log(lastId);
+                    this.getTaskById(lastId[0][`LAST_INSERT_ID()`]).then((task) => {
+                        console.log(task);
+                        resolve(task);
+                    })
+                    .catch((err) => (reject(err)));
+                });
+            });
+        })
+    }
+    getTaskById(id) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`SELECT * FROM tasks WHERE task_id = ?`, [id], (err, task) => {
+                if(err) reject(err);
+                resolve(task[0]);
+            });
         });
     }
     loadFromList(id) {
         return new Promise((resolve, reject) => {
             this.db.query(`SELECT * FROM tasks WHERE id = ?`, [id], (err, tasks) => {
                 if(err) reject(err);
+                console.log(tasks);
                 resolve(tasks);
+            });
+        });
+    }
+    changeType(id, type) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`UPDATE tasks SET type = ? WHERE task_id = ?`, [type, id], (err) => {
+                if(err) reject(err);
+                resolve();
             });
         });
     }

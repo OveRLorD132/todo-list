@@ -9,6 +9,8 @@
                     :key="index"
                     @mouseover="changeColor(channel)"
                     @mouseleave="restoreColor(channel)"
+                    :style="{backgroundColor: currChannel === channel ? '#BCF4E7' : 'transparent' }"
+                    @click="changeChannel"
                     class="channel">{{ channel }}</div>
                 </div>
             </div>
@@ -30,43 +32,57 @@
                 </div>
             </div>
             <div id="tasks">
-                <div v-for="(task, ind) in tasks" :key="ind" class="task">{{ task }}</div>
+                <div 
+                v-for="(task, ind) in tasks" :key="ind" 
+                class="task">
+                    <div class="taskText">{{ task.text }}</div>
+                    <div class="buttons">
+                        <div @click="toImportant(task)"
+                        class="toImportantButt">To Important</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import { trackSlotScopes } from '@vue/compiler-core';
 import axios from 'axios';
 export default {
     data() {
         return {
             newTask: "",
+            allTasks: [],
             tasks: [],
             submitIsVisible: false,
             height: 6,
             panelIsVisible: false,
             buttIsVisible: true,
-            channels: ['Today', 'Important', 'All tasks']
+            channels: ['Today', 'Important', 'All tasks'],
+            currChannel: 'Today',
         }
     },
     created() {
         axios.get('/tasks/load/task')
             .then((tasks) => {
-                for(let task of tasks.data) {
-                    this.tasks.push(task.text);
-                }
+                this.allTasks = Array.from(tasks.data);
+                console.log(this.allTasks);
+                tasks = tasks.data;
+                this.showTasks(tasks);
             });
     },
     methods: {
         addTask() {
             if(this.newTask !== "") {
-                axios.post('/tasks/new/task', {task: this.newTask})
+                console.log(this.currChannel);
+                axios.post('/tasks/new/task', {text: this.newTask, type: this.currChannel})
                     .then((response) => {
                         this.newTask = "";
-                        console.log(response);
                         this.tasks.push(response.data);
-                    });
+                        this.allTasks.push(response.data);
+                    })
+                    .catch((err) => (console.log(err)))
             }
         },
         onFormSelect() {
@@ -85,15 +101,43 @@ export default {
             }
         },
         changeColor(channel) {
-            let element = event.target
-            element.style.backgroundColor = '#EBEBEB'
+            if(channel !== this.currChannel) {
+                let element = event.target
+                element.style.backgroundColor = '#EBEBEB'
+            }
         },
         restoreColor(channel) {
-            let element = event.target
-            element.style.backgroundColor = '#ffffff';
-        }
+            if(channel !== this.currChannel) {
+                let element = event.target
+                element.style.backgroundColor = '#ffffff';
+            }
+        },
+        changeChannel(channel) {
+            //console.log(channel.srcElement.innerHTML);
+            let elemChannel = channel.srcElement.innerHTML;
+            if(elemChannel !== this.currChannel){
+                this.currChannel = elemChannel;
+                this.showTasks(this.allTasks);
+                }
+        },
+        toImportant(task) {
+            console.log(task);
+            axios.patch('/tasks/update/type', {task_id: task.task_id, type: "Important"}).then((response) => {
+                if(response.data === "Success.") { 
+                    task.type = "Important";
+                    this.showTasks(this.tasks);
+                }
+            });
+        },
+        showTasks(tasks) {
+            this.tasks = tasks.filter(task => {
+                if(this.currChannel !== "All tasks") return task.type == this.currChannel;
+                return task;
+            });
+        },
     }
-}
+    }
+
 </script>
 
 <style>
