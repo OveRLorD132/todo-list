@@ -38,7 +38,9 @@
                     <div class="taskText">{{ task.text }}</div>
                     <div class="buttons">
                         <div @click="toImportant(task)"
-                        class="toImportantButt">To Important</div>
+                        @mouseover="changePic(task)"
+                        @mouseleave="restorePic(task)"
+                        class="toImportantButt"><img id="impImg" :src="task.picSrc"></div>
                     </div>
                 </div>
             </div>
@@ -49,6 +51,7 @@
 <script>
 import { trackSlotScopes } from '@vue/compiler-core';
 import axios from 'axios';
+import { toHandlers } from 'vue';
 export default {
     data() {
         return {
@@ -60,7 +63,7 @@ export default {
             panelIsVisible: false,
             buttIsVisible: true,
             channels: ['Today', 'Important', 'All tasks'],
-            currChannel: 'Today',
+            currChannel: 'Today'
         }
     },
     created() {
@@ -79,6 +82,8 @@ export default {
                 axios.post('/tasks/new/task', {text: this.newTask, type: this.currChannel})
                     .then((response) => {
                         this.newTask = "";
+                        if(response.data.type !== "Important") response.data.picSrc = '/images/imp_not_chosen.png';
+                        else if(response.data.type === "Important") response.data.picSrc = "/images/imp_chosen.png";
                         this.tasks.push(response.data);
                         this.allTasks.push(response.data);
                     })
@@ -112,29 +117,44 @@ export default {
                 element.style.backgroundColor = '#ffffff';
             }
         },
+        hideSubmit() {
+            this.submitIsVisible = false;
+            if(this.height > 6) this.height -= 6;
+        },
         changeChannel(channel) {
             //console.log(channel.srcElement.innerHTML);
             let elemChannel = channel.srcElement.innerHTML;
             if(elemChannel !== this.currChannel){
                 this.currChannel = elemChannel;
                 this.showTasks(this.allTasks);
-                }
+                this.hideSubmit();
+            }
         },
         toImportant(task) {
-            console.log(task);
-            axios.patch('/tasks/update/type', {task_id: task.task_id, type: "Important"}).then((response) => {
+            let type;
+            if(task.type === "Important") type = "Today";
+            else type = "Important";
+            axios.patch('/tasks/update/type', {task_id: task.task_id, type: type}).then((response) => {
                 if(response.data === "Success.") { 
-                    task.type = "Important";
+                    task.type = type;
                     this.showTasks(this.tasks);
                 }
             });
         },
         showTasks(tasks) {
             this.tasks = tasks.filter(task => {
+                if(task.type !== "Important") task.picSrc = "/images/imp_not_chosen.png";
+                else if(task.type === "Important") task.picSrc = "/images/imp_chosen.png";
                 if(this.currChannel !== "All tasks") return task.type == this.currChannel;
                 return task;
             });
         },
+        changePic(task) {
+            if(task.type !== "Important") task.picSrc = '/images/imp_chosen.png'
+        },
+        restorePic(task) {
+            if(task.type !== "Important") task.picSrc = "/images/imp_not_chosen.png";
+        }
     }
     }
 

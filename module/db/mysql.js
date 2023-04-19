@@ -66,7 +66,6 @@ class Database {
         return new Promise((resolve, reject) => {
             this.db.query(`SELECT * FROM tasks WHERE id = ?`, [id], (err, tasks) => {
                 if(err) reject(err);
-                console.log(tasks);
                 resolve(tasks);
             });
         });
