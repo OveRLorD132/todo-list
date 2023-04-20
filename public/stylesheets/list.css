@@ -66,6 +66,7 @@
 
 .leftContainer {
     display: flex;
+    align-items: center;
     flex-basis: 50%;
 }
 
@@ -100,10 +101,31 @@
     text-align: right;
 }
 
+#finishedTasksContainer {
+    display: flex;
+    padding-left: 2vh;
+    margin-top: 1vh;
+    width: 100%;
+    height: 70px;
+    background-color: #ffffff;
+}
+
+#finishedTasksLabel {
+    flex-wrap: wrap;
+    display: flex;
+    align-content: center;
+}
+
 .buttons {
     margin-right: 4vh;
     display: flex;
     align-content: center;
+}
+
+.doneImg {
+    margin-right: 1vh;
+    width: 20px;
+    height: 20px;
 }
 
 .task {

@@ -31,7 +31,7 @@ router.patch('/tasks/update/type', (req, res) => {
 });
 
 router.patch('/tasks/finished/task', (req, res) => {
-    database.setFinished(req.body.task_id).then(() => {
+    database.setFinished(req.body.task_id, req.body.isFinished).then(() => {
         res.send('Success.');
     }).catch((err) => {
         console.log(err);

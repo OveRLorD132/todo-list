@@ -35,7 +35,36 @@
                 <div 
                 v-for="(task, ind) in tasks" :key="ind" class="task">
                     <div class="leftContainer">
-                        <div class="finished" @click="finishTask(task)">Finished </div>
+                        <div class="finished" @click="finishTask(task)">
+                            <img class="doneImg" src="/images/done.png">
+                        </div>
+                        <div class="taskText">{{ task.text }}</div>
+                    </div>
+                    <div class="buttons">
+                        <div @click="toImportant(task)"
+                        @mouseover="changePic(task)"
+                        @mouseleave="restorePic(task)"
+                        class="toImportantButt"><img id="impImg" :src="task.picSrc"></div>
+                        <div @click="deleteElem(task)"
+                        id="deleteButt"><img id="deleteImg" src="/images/delete.png"></div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="finishedTasks.length > 0"
+            @click="showFinishedTasks"
+            id="finishedTasksContainer">
+            <div id="finishedTasksLabel">
+                <div> Finished Tasks</div>
+                <div>{{ finishedTasks.length }}</div>
+            </div>
+            </div>
+            <div id="finishedTasksList" v-if="finishedTasksIsVisible">
+                <div v-for="(task, index) in finishedTasks" :key="index"
+                class="task">
+                <div class="leftContainer">
+                        <div class="finished" @click="finishTask(task)">
+                            <img class="doneImg" src="/images/done.png">
+                        </div>
                         <div class="taskText">{{ task.text }}</div>
                     </div>
                     <div class="buttons">
@@ -68,7 +97,8 @@ export default {
             buttIsVisible: true,
             channels: ['Today', 'Important', 'All tasks'],
             currChannel: 'Today',
-            finishedTasks: []
+            finishedTasks: [],
+            finishedTasksIsVisible: false
         }
     },
     created() {
@@ -77,8 +107,6 @@ export default {
             for(let task of this.allTasks) {
                 if(task.isFinished) this.finishedTasks.push(task);
             }
-            console.log(this.finishedTasks);
-            console.log(this.allTasks);
             tasks = tasks.data;
             this.showTasks(tasks);
         });
@@ -162,18 +190,28 @@ export default {
         },
         showTasks(tasks) {
             this.tasks = tasks.filter(task => {
-                if(task.isFinished) return false;
+                console.log(task);
                 if(task.type !== "Important") task.picSrc = "/images/imp_not_chosen.png";
                 else if(task.type === "Important") task.picSrc = "/images/imp_chosen.png";
+                if(task.isFinished) return false;
                 if(this.currChannel !== "All tasks") return task.type == this.currChannel;
                 return task;
             });
         },
         finishTask(task) {
-            axios.patch('/tasks/finished/task', {task_id: task.task_id}).then(response => {
+            let isFinished = 1;
+            if(task.isFinished) isFinished = 0;
+            axios.patch('/tasks/finished/task', {task_id: task.task_id, isFinished: isFinished}).then(response => {
                 if(response.data === "Success.") {
-                    task.isFinished = true;
-                    this.showTasks(this.tasks);
+                    task.isFinished = isFinished;
+                    if(isFinished) this.finishedTasks.push(task);
+                    if(!isFinished) {
+                        for(let t in this.finishedTasks) {
+                            if(this.finishedTasks[t].task_id === task.task_id) this.finishedTasks.splice(t, 1);
+                            break;
+                        }
+                    }
+                    this.showTasks(this.allTasks);
                 }
             });
         },
@@ -182,8 +220,19 @@ export default {
         },
         restorePic(task) {
             if(task.type !== "Important") task.picSrc = "/images/imp_not_chosen.png";
+        },
+        showFinishedTasks() {
+            console.log(this.finishedTasksIsVisible)
+            if(this.finishedTasksIsVisible === true) {
+                this.finishedTasksIsVisible = false;
+                return;
+            }
+            if(this.finishedTasksIsVisible === false) {
+                this.finishedTasksIsVisible = true;
+                return;
+            }
         }
-    }
+    }  
 }
 
 </script>

@@ -86,10 +86,10 @@ class Database {
             });
         });
     }
-    setFinished(id) {
+    setFinished(id, bool) {
+        console.log(bool);
         return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE tasks SET isFinished = true WHERE task_id = ?`, [id], (err, result) => {
-                console.log(result);
+            this.db.query(`UPDATE tasks SET isFinished = ? WHERE task_id = ?`, [bool ,id], (err, result) => {
                 if(err) reject(err);
                 resolve();
             })
