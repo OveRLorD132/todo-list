@@ -21,6 +21,7 @@ router.get('/tasks/load/task', (req, res) => {
 });
 
 router.patch('/tasks/update/type', (req, res) => {
+    console.log(req);
     database.changeType(req.body.task_id, req.body.type,).then(() => {
         res.send("Success.");
     }).catch((err) => {
@@ -28,6 +29,15 @@ router.patch('/tasks/update/type', (req, res) => {
         res.send("Error.");
     });
 });
+
+router.patch('/tasks/finished/task', (req, res) => {
+    database.setFinished(req.body.task_id).then(() => {
+        res.send('Success.');
+    }).catch((err) => {
+        console.log(err);
+        res.send('Error.');
+    });
+})
 
 router.delete('/tasks/delete/task', (req, res) => {
     database.deleteLine(req.body.task_id).then(() => {

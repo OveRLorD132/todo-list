@@ -80,11 +80,19 @@ class Database {
     }
     deleteLine(id) {
         return new Promise((resolve, reject) => {
-            console.log(id);
             this.db.query(`DELETE FROM tasks WHERE task_id = ?`, [id], (err) => {
                 if(err) reject(err);
                 resolve();
             });
+        });
+    }
+    setFinished(id) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`UPDATE tasks SET isFinished = true WHERE task_id = ?`, [id], (err, result) => {
+                console.log(result);
+                if(err) reject(err);
+                resolve();
+            })
         });
     }
 }

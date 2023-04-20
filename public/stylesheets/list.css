@@ -64,6 +64,11 @@
     height: 2.5vh;
 }
 
+.leftContainer {
+    display: flex;
+    flex-basis: 50%;
+}
+
 #tasksContainer {
     margin-top: 2vh;
     padding-right: 1vh;
@@ -128,6 +133,14 @@
     width: 100%;
     padding-left: 2vh;
     margin-right: 4vh;
+}
+
+.finished {
+    flex: 0 0 auto;
+}
+
+.taskText {
+    flex: 1;
 }
 
 input[type="text"] {

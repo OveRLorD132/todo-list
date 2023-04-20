@@ -33,9 +33,11 @@
             </div>
             <div id="tasks">
                 <div 
-                v-for="(task, ind) in tasks" :key="ind" 
-                class="task">
-                    <div class="taskText">{{ task.text }}</div>
+                v-for="(task, ind) in tasks" :key="ind" class="task">
+                    <div class="leftContainer">
+                        <div class="finished" @click="finishTask(task)">Finished </div>
+                        <div class="taskText">{{ task.text }}</div>
+                    </div>
                     <div class="buttons">
                         <div @click="toImportant(task)"
                         @mouseover="changePic(task)"
@@ -65,31 +67,35 @@ export default {
             panelIsVisible: false,
             buttIsVisible: true,
             channels: ['Today', 'Important', 'All tasks'],
-            currChannel: 'Today'
+            currChannel: 'Today',
+            finishedTasks: []
         }
     },
     created() {
-        axios.get('/tasks/load/task')
-            .then((tasks) => {
-                this.allTasks = Array.from(tasks.data);
-                console.log(this.allTasks);
-                tasks = tasks.data;
-                this.showTasks(tasks);
-            });
+        axios.get('/tasks/load/task').then((tasks) => {
+            this.allTasks = Array.from(tasks.data);
+            for(let task of this.allTasks) {
+                if(task.isFinished) this.finishedTasks.push(task);
+            }
+            console.log(this.finishedTasks);
+            console.log(this.allTasks);
+            tasks = tasks.data;
+            this.showTasks(tasks);
+        });
     },
     methods: {
         addTask() {
             if(this.newTask !== "") {
                 console.log(this.currChannel);
-                axios.post('/tasks/new/task', {text: this.newTask, type: this.currChannel})
-                    .then((response) => {
-                        this.newTask = "";
-                        if(response.data.type !== "Important") response.data.picSrc = '/images/imp_not_chosen.png';
-                        else if(response.data.type === "Important") response.data.picSrc = "/images/imp_chosen.png";
-                        this.tasks.push(response.data);
-                        this.allTasks.push(response.data);
-                    })
-                    .catch((err) => (console.log(err)))
+                axios.post('/tasks/new/task', {text: this.newTask, type: this.currChannel}).then((response) => {
+                    this.newTask = "";
+                    if(response.data.type !== "Important") response.data.picSrc = '/images/imp_not_chosen.png';
+                    else if(response.data.type === "Important") response.data.picSrc = "/images/imp_chosen.png";
+                    if(response.data.isFinished) this.finishedTasks.push(response.data);
+                    else this.tasks.push(response.data);
+                    this.allTasks.push(response.data);
+                    console.log(this.allTasks);
+                }).catch((err) => (console.log(err)))
             }
         },
         onFormSelect() {
@@ -156,10 +162,19 @@ export default {
         },
         showTasks(tasks) {
             this.tasks = tasks.filter(task => {
+                if(task.isFinished) return false;
                 if(task.type !== "Important") task.picSrc = "/images/imp_not_chosen.png";
                 else if(task.type === "Important") task.picSrc = "/images/imp_chosen.png";
                 if(this.currChannel !== "All tasks") return task.type == this.currChannel;
                 return task;
+            });
+        },
+        finishTask(task) {
+            axios.patch('/tasks/finished/task', {task_id: task.task_id}).then(response => {
+                if(response.data === "Success.") {
+                    task.isFinished = true;
+                    this.showTasks(this.tasks);
+                }
             });
         },
         changePic(task) {
