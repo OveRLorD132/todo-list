@@ -1,4 +1,17 @@
 <template>
+    <div class="errorMessage" v-if="errorMessageIsVisible">
+        <div class="errorContainer">
+            <div class="errorText">ERROR: Something's wrong</div>
+            <button class="OKButt" @click="hideErrorMessage">OK</button>
+        </div>
+    </div>
+    <div id="line">
+        <div id="searchCont"><form @submit.prevent>
+            <input type="text" name="search" v-model="searchTasks" id="search">
+        </form>
+        <div id="errorButt"><button @click="showErrorMessage">Error</button></div>
+    </div>
+    </div>
     <div id="container">
         <div v-if="panelIsVisible" id="panelContainer">
             <div id="panel">
@@ -20,12 +33,12 @@
                 <div v-if="buttIsVisible" @click="AddPanel"><img id="menuImg" src="/images/menu.png"></div> 
                 <div id="label"> Tasks</div>
             </div>
-            <div id="mainContainer" :style="{ height: height + 'vh'}">
+            <div id="mainContainer" :style="{ height: height + 'px'}">
                 <div id="form">
                     <form @submit.prevent="addTask" @click="onFormSelect">
                         <input v-model="newTask" type="text" name="task" placeholder="Add new task..." id="taskInput">
                         <div v-if="submitIsVisible" id="submitContainer">
-                            <hr style="margin-top: 0; margin-bottom: 0.4vh; padding: 0; margin-right: -4vh; border-color: #ECECEC;">
+                            <hr style="margin-top: 0; margin-bottom: 0.4vh; padding: 0; margin-right: -5vh; border-color: #f7f7f7;">
                         <input type="submit" value="Enter">
                         </div>
                     </form>
@@ -33,19 +46,20 @@
             </div>
             <div id="tasks">
                 <div 
-                v-for="(task, ind) in tasks" :key="ind" class="task">
+                v-for="(task, ind) in filteredTasks" :key="ind" class="task"
+                @click="showInfo(task)">
                     <div class="leftContainer">
-                        <div class="finished" @click="finishTask(task)">
+                        <div class="finished" @click.stop="finishTask(task)">
                             <img class="doneImg" src="/images/done.png">
                         </div>
                         <div class="taskText">{{ task.text }}</div>
                     </div>
                     <div class="buttons">
-                        <div @click="toImportant(task)"
+                        <div @click.stop="toImportant(task)"
                         @mouseover="changePic(task)"
                         @mouseleave="restorePic(task)"
                         class="toImportantButt"><img id="impImg" :src="task.picSrc"></div>
-                        <div @click="deleteElem(task)"
+                        <div @click.stop="deleteElem(task)"
                         id="deleteButt"><img id="deleteImg" src="/images/delete.png"></div>
                     </div>
                 </div>
@@ -60,20 +74,37 @@
             </div>
             <div id="finishedTasksList" v-if="finishedTasksIsVisible">
                 <div v-for="(task, index) in finishedTasks" :key="index"
-                class="task">
+                class="task"
+                @click="showInfo(task)">
                 <div class="leftContainer">
-                        <div class="finished" @click="finishTask(task)">
+                        <div class="finished" @click.stop="finishTask(task)">
                             <img class="doneImg" src="/images/done.png">
                         </div>
                         <div class="taskText">{{ task.text }}</div>
                     </div>
                     <div class="buttons">
-                        <div @click="toImportant(task)"
+                        <div @click.stop="toImportant(task)"
                         @mouseover="changePic(task)"
                         @mouseleave="restorePic(task)"
                         class="toImportantButt"><img id="impImg" :src="task.picSrc"></div>
-                        <div @click="deleteElem(task)"
+                        <div @click.stop="deleteElem(task)"
                         id="deleteButt"><img id="deleteImg" src="/images/delete.png"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="taskInfContainer" v-if="chosenTask">
+            <div class="taskInf">
+                <div class="finished" @click.stop="finishTask(chosenTask)">
+                    <img class="doneImg" src="/images/done.png">
+                </div>
+                <div class="taskText">{{ chosenTask.text }}</div>
+                <div class="buttons">
+                    <div @click.stop="toImportant(chosenTask)"
+                    @mouseover="changePic(chosenTask)"
+                    @mouseleave="restorePic(chosenTask)"
+                    class="toImportantButt">
+                        <img id="impImg" :src="chosenTask.picSrc">
                     </div>
                 </div>
             </div>
@@ -82,23 +113,25 @@
 </template>
 
 <script>
-import { trackSlotScopes } from '@vue/compiler-core';
 import axios from 'axios';
-import { toHandlers } from 'vue';
 export default {
     data() {
         return {
             newTask: "",
             allTasks: [],
             tasks: [],
+            filteredTasks: [],
             submitIsVisible: false,
-            height: 6,
+            height: 55,
             panelIsVisible: false,
             buttIsVisible: true,
+            chosenTask: null,
             channels: ['Today', 'Important', 'All tasks'],
             currChannel: 'Today',
             finishedTasks: [],
-            finishedTasksIsVisible: false
+            finishedTasksIsVisible: false,
+            searchTasks: "",
+            errorMessageIsVisible: false,
         }
     },
     created() {
@@ -109,6 +142,7 @@ export default {
             }
             tasks = tasks.data;
             this.showTasks(tasks);
+            this.filteredTasks = this.tasks;
         });
     },
     methods: {
@@ -128,7 +162,7 @@ export default {
         },
         onFormSelect() {
             this.submitIsVisible = true;
-            if(this.height !== 12) this.height += 6;
+            if(this.height !== 110) this.height += 55;
             console.log(this.submitIsVisible);
         },
         AddPanel() {
@@ -155,7 +189,7 @@ export default {
         },
         hideSubmit() {
             this.submitIsVisible = false;
-            if(this.height > 6) this.height -= 6;
+            if(this.height > 55) this.height -= 55;
         },
         changeChannel(channel) {
             //console.log(channel.srcElement.innerHTML);
@@ -173,7 +207,7 @@ export default {
             axios.patch('/tasks/update/type', {task_id: task.task_id, type: type}).then((response) => {
                 if(response.data === "Success.") { 
                     task.type = type;
-                    this.showTasks(this.tasks);
+                    this.showTasks(this.allTasks);
                 }
             });
         },
@@ -197,6 +231,17 @@ export default {
                 if(this.currChannel !== "All tasks") return task.type == this.currChannel;
                 return task;
             });
+            this.finishedTasks = tasks.filter(task => {
+                if(!task.isFinished) return false;
+                if(this.currChannel !== "All tasks") return task.type == this.currChannel;
+                return task;
+            });
+            this.filteredTasks = this.tasks;
+            this.searchTasks = "";
+        },
+        showInfo(task) {
+            this.chosenTask = task;
+            task.isChosen = true;
         },
         finishTask(task) {
             let isFinished = 1;
@@ -216,6 +261,7 @@ export default {
             });
         },
         changePic(task) {
+            if(task)
             if(task.type !== "Important") task.picSrc = '/images/imp_chosen.png'
         },
         restorePic(task) {
@@ -231,8 +277,24 @@ export default {
                 this.finishedTasksIsVisible = true;
                 return;
             }
+        },
+        showErrorMessage() {
+            this.errorMessageIsVisible = true;
+        },
+        hideErrorMessage() {
+            this.errorMessageIsVisible = false;
         }
-    }  
+    },
+    watch: {
+            searchTasks(newReq) {
+                console.log(newReq)
+                if(newReq !== "") this.filteredTasks = this.tasks.filter(task => {
+                    //console.log(task.text.toLowerCase().indexOf(newReq.toLowerCase()));
+                    return task.text.toLowerCase().indexOf(newReq.toLowerCase()) !== -1;
+                });
+                else this.filteredTasks = this.tasks;
+            }
+        }  
 }
 
 </script>
