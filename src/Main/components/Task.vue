@@ -25,6 +25,7 @@ export default {
         task: Object,
         index: Number,
     },
+    
     methods: {
         toImportant(task, index) {
             let type;

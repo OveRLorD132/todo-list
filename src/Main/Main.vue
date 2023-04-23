@@ -9,9 +9,9 @@
     </div>
     <div id="container">
         <panel @toggle-button="toggleButton" 
-        :curr-channel="currChannel" 
-        ref="panel" :change-channel="changeChannel">
-        </panel>
+            :curr-channel="currChannel" 
+            ref="panel" @change-channel="changeChannel"
+        />
         <div id="tasksContainer">
             <div id="taskLabel">
                 <div v-if="buttIsVisible" @click="AddPanel"><img id="menuImg" src="/images/menu.png"></div> 
@@ -41,12 +41,11 @@
                 />
             </template>
         </div>
-        <div id="taskInfContainer" v-if="chosenTask">
-            <task :task="chosenTask" :finished-tasks="finishedTasks"
-                :all-tasks="allTasks" :show-tasks="showTasks" :class="taskInfClass"
-                @task-deleted="handleDeleting"
+        <task-info :chosenTask="chosenTask" @new-subtask="newSubtask">
+            <task :task="chosenTask" :class="taskInfClass"
+                @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
             />
-        </div>
+        </task-info>
     </div>
 </template>
 
@@ -56,6 +55,7 @@ import Panel from './components/Panel.vue';
 import FormCompoment from './components/FormCompoment.vue';
 import Task from './components/Task.vue';
 import VueAnimations from './VueAnimations';
+import TaskInfo from './components/TaskInfo.vue';
 import axios from 'axios';
 export default {
     mixins: [VueAnimations],
@@ -63,7 +63,8 @@ export default {
         ErrorComponent,
         Panel,
         FormCompoment,
-        Task
+        Task,
+        TaskInfo
     },
     data() {
         return {
@@ -97,9 +98,8 @@ export default {
     },
     methods: {
         changeChannel(channel) {
-            let elemChannel = channel.srcElement.innerHTML;
-            if(elemChannel !== this.currChannel){
-                this.currChannel = elemChannel;
+            if(channel !== this.currChannel){
+                this.currChannel = channel;
                 this.showTasks(this.allTasks);
                 if(this.filteredTasks.indexOf(this.chosenTask) === -1 && this.filteredFinishedTasks.indexOf(this.chosenTask) === -1){
                 this.chosenTask = "";
@@ -168,6 +168,14 @@ export default {
             console.log(this.filteredFinishedTasks);
             this.showTasks(this.allTasks);
             console.log(this.filteredFinishedTasks);
+        },
+        async newSubtask(newSubtask) {
+            try {
+                let subtask = await axios.post('/tasks/new/subtask', {task_id: this.chosenTask.task_id, subtask: newSubtask});
+                console.log(subtask);
+            } catch(err) {
+                console.error(err);
+            }
         }
     },
     watch: {

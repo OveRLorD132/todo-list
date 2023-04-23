@@ -9,7 +9,7 @@
             @mouseover="changeColor(channel)"
             @mouseleave="restoreColor(channel)"
             :style="{backgroundColor: currChannel === channel ? '#BCF4E7' : 'transparent' }"
-            @click="changeChannel"
+            @click="changeChannel(channel)"
             class="channel">{{ channel }}</div>
         </div>
     </div>
@@ -30,12 +30,11 @@ export default {
             type: String,
             default: "",
         },
-        changeChannel: {
-            type: Function,
-            required: true,
-        }
     },
     methods: {
+        changeChannel(channel) {
+            this.$emit('change-channel', channel);
+        },
         changeColor(channel) {
             if(channel !== this.currChannel) {
                 let element = event.target

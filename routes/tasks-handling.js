@@ -50,4 +50,14 @@ router.delete('/tasks/delete/task', (req, res) => {
 
 });
 
+router.post('/tasks/new/subtask', async (req, res) => {
+    try {
+        let subtask = await database.insertSubtask(req.body.task_id, req.body.subtask);
+        subtask.user_id = req.session.passport.user.id;
+        res.send(subtask);
+    } catch(err) {
+        console.error(err);
+    }
+});
+
 module.exports = router;
