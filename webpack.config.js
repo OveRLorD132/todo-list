@@ -4,6 +4,15 @@ let path = require('path');
 module.exports = {
     mode: 'development',
     entry: './src/Main/main.js',
+    cache: {
+        type: 'filesystem',
+        allowCollectingMemory: true,
+    },
+    optimization: {
+        removeAvailableModules: false,
+        removeEmptyChunks: false,
+        splitChunks: false,
+    },
     output: {
         path: path.resolve(__dirname, 'public', 'javascripts', 'Main'),
         filename: 'main.js',
