@@ -17,62 +17,35 @@
                 <div v-if="buttIsVisible" @click="AddPanel"><img id="menuImg" src="/images/menu.png"></div> 
                 <div id="label"> Tasks</div>
             </div>
-            <form-compoment :all-tasks="allTasks" :tasks="tasks"
+            <form-compoment @new-task="addTask"
             :curr-channel="currChannel" ref="form">
             </form-compoment>
             <div id="tasks">
-                <div 
-                v-for="(task, ind) in filteredTasks" :key="ind" class="task"
-                @click="showInfo(task)">
-                    <div class="leftContainer">
-                        <div class="finished" @click.stop="finishTask(task)">
-                            <img class="doneImg" src="/images/done.png">
-                        </div>
-                        <div class="taskText">{{ task.text }}</div>
-                    </div>
-                    <div class="buttons">
-                        <div @click.stop="toImportant(task)"
-                        @mouseover="changePic(task)"
-                        @mouseleave="restorePic(task)"
-                        class="toImportantButt"><img id="impImg" :src="task.picSrc"></div>
-                        <div @click.stop="deleteElem(task)"
-                        id="deleteButt"><img id="deleteImg" src="/images/delete.png"></div>
-                    </div>
-                </div>
+                <task v-for="(task, ind) in filteredTasks" :key="ind" @click="showInfo(task)" :class="taskClass"
+                    :task="task" :index="ind" @toggle-finishing="toggleFinishing"
+                    @task-deleted="handleDeleting" @important="toImportant"
+                />
             </div>
-            <div v-if="finishedTasks.length > 0"
+            <div v-if="filteredFinishedTasks.length > 0"
             @click="showFinishedTasks"
             id="finishedTasksContainer">
                 <div id="finishedTasksLabel">
                     <div> Finished Tasks</div>
-                    <div>{{ finishedTasks.length }}</div>
+                    <div>{{ filteredFinishedTasks.length }}</div>
                 </div>
             </div>
-            <div id="finishedTasksList" v-if="finishedTasksIsVisible">
-                <div v-for="(task, index) in finishedTasks" :key="index"
-                class="task"
-                @click="showInfo(task)">
-                <div class="leftContainer">
-                        <div class="finished" @click.stop="finishTask(task)">
-                            <img class="doneImg" src="/images/done.png">
-                        </div>
-                        <div class="taskText">{{ task.text }}</div>
-                    </div>
-                    <div class="buttons">
-                        <div @click.stop="toImportant(task)"
-                        @mouseover="changePic(task)"
-                        @mouseleave="restorePic(task)"
-                        class="toImportantButt"><img id="impImg" :src="task.picSrc"></div>
-                        <div @click.stop="deleteElem(task)"
-                        id="deleteButt"><img id="deleteImg" src="/images/delete.png"></div>
-                    </div>
-                </div>
-            </div>
+            <template v-if="finishedTasksIsVisible">
+                <task v-for="(task, index) in filteredFinishedTasks" :key="index" :task="task" @click="showInfo(task)"
+                    :class="taskClass" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
+                    @important="toImportant"
+                />
+            </template>
         </div>
         <div id="taskInfContainer" v-if="chosenTask">
             <task :task="chosenTask" :finished-tasks="finishedTasks"
-            :all-tasks="allTasks" :show-tasks="showTasks">
-            </task>
+                :all-tasks="allTasks" :show-tasks="showTasks" :class="taskInfClass"
+                @task-deleted="handleDeleting"
+            />
         </div>
     </div>
 </template>
@@ -102,7 +75,10 @@ export default {
             currChannel: 'Today',
             finishedTasks: [],
             finishedTasksIsVisible: false,
+            filteredFinishedTasks: [],
             searchTasks: "",
+            taskClass: 'task',
+            taskInfClass: 'taskInf'
         }
     },
     created() {
@@ -114,15 +90,20 @@ export default {
             tasks = tasks.data;
             this.showTasks(tasks);
             this.filteredTasks = this.tasks;
+            console.log(this.finishedTasks);
+            console.log(this.allTasks);
+            this.filteredFinishedTasks = this.finishedTasks; 
         });
     },
     methods: {
         changeChannel(channel) {
-            //console.log(channel.srcElement.innerHTML);
             let elemChannel = channel.srcElement.innerHTML;
             if(elemChannel !== this.currChannel){
                 this.currChannel = elemChannel;
                 this.showTasks(this.allTasks);
+                if(this.filteredTasks.indexOf(this.chosenTask) === -1 && this.filteredFinishedTasks.indexOf(this.chosenTask) === -1){
+                this.chosenTask = "";
+                }
                 this.$refs.form.hideSubmit();
             }
         },
@@ -140,6 +121,7 @@ export default {
                 return task;
             });
             this.filteredTasks = this.tasks;
+            this.filteredFinishedTasks = this.finishedTasks;
             this.searchTasks = "";
         },
         showInfo(task) {
@@ -158,63 +140,52 @@ export default {
         AddPanel() {
             this.$refs.panel.AddPanel();
         },
-        toImportant(task) {
-            let type;
-            if(task.type === "Important") type = "Today";
-            else type = "Important";
-            axios.patch('/tasks/update/type', {task_id: task.task_id, type: type}).then((response) => {
-                if(response.data === "Success.") { 
-                    task.type = type;
-                    this.showTasks(this.allTasks);
-                }
-            });
+        handleDeleting(response) {
+            if(response.task === this.chosenTask) this.chosenTask = "";
+            if(response.task.isFinished) this.filteredFinishedTasks.splice(response.index, 1);
+            else this.filteredTasks.splice(response.index, 1);
         },
-        deleteElem(task) {
-            axios.delete('/tasks/delete/task', { data: task}).then((response) => {
-                console.log(response);
-                for(let ind in this.tasks) {
-                    if(this.tasks[ind].task_id === task.task_id) {
-                        this.tasks.splice(ind, 1);
-                        break;
-                    }
-                }
-            });
+        addTask(newTask) {
+            this.allTasks.push(newTask);
+            this.tasks.push(newTask);
         },
-        finishTask(task) {
-            let isFinished = 1;
-            if(task.isFinished) isFinished = 0;
-            axios.patch('/tasks/finished/task', {task_id: task.task_id, isFinished: isFinished}).then(response => {
-                if(response.data === "Success.") {
-                    task.isFinished = isFinished;
-                    if(isFinished) this.finishedTasks.push(task);
-                    if(!isFinished) {
-                        for(let t in this.finishedTasks) {
-                            if(this.finishedTasks[t].task_id === task.task_id) this.finishedTasks.splice(t, 1);
-                            break;
-                        }
-                    }
-                    this.showTasks(this.allTasks);
-                }
-            });
-        },
-        changePic(task) {
-            if(task.type === "Important") return;
-            if(task.picSrc === "/images/imp_not_chosen.png"){
-                task.picSrc = '/images/imp_chosen.png';
+        toggleFinishing(response) {
+            if(response.task.isFinished) {
+                this.tasks.splice(response.index, 1);
+                this.filteredFinishedTasks.push(response.task);
+                return;
+            } else if(!response.task.isFinished) {
+                console.log('not finished');
+                this.finishedTasks.splice(response.index, 1);
+                this.filteredTasks.push(response.task);
                 return;
             }
-            task.picSrc = "/images/imp_not_chosen.png";
-            return;
         },
+        toImportant(response) {
+            console.log(response);
+            if(response.task.isFinished) this.filteredFinishedTasks[response.index].type = response.task.type;
+            else this.filteredTasks[response.index].type = response.task.type; 
+            console.log(this.filteredFinishedTasks);
+            this.showTasks(this.allTasks);
+            console.log(this.filteredFinishedTasks);
+        }
     },
     watch: {
             searchTasks(newReq) {
-                console.log(newReq)
-                if(newReq !== "") this.filteredTasks = this.tasks.filter(task => {
-                    //console.log(task.text.toLowerCase().indexOf(newReq.toLowerCase()));
-                    return task.text.toLowerCase().indexOf(newReq.toLowerCase()) !== -1;
-                });
-                else this.filteredTasks = this.tasks;
+                if(newReq !== "") {
+                    this.filteredTasks = this.tasks.filter(task => {
+                        if(task.isFinished) return;
+                        return task.text.toLowerCase().indexOf(newReq.toLowerCase()) !== -1;
+                    });
+                    this.filteredFinishedTasks = this.finishedTasks.filter(task => {
+                        if(!task.isFinished) return;
+                        return task.text.toLowerCase().indexOf(newReq.toLowerCase()) !== -1;
+                    });
+                } 
+                else {
+                    this.filteredFinishedTasks = this.finishedTasks;
+                    this.filteredTasks = this.tasks;
+                }
             }
         }  
 }

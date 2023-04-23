@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { getTransitionRawChildren } from 'vue';
 export default {
     data() {
         return {
@@ -22,8 +24,6 @@ export default {
         }
     },
     props: {
-        allTasks: Array,
-        tasks: Array,
         currChannel: String,
     },
     methods: {
@@ -33,8 +33,7 @@ export default {
                     this.newTask = "";
                     if(response.data.type !== "Important") response.data.picSrc = '/images/imp_not_chosen.png';
                     else if(response.data.type === "Important") response.data.picSrc = "/images/imp_chosen.png";
-                    else this.tasks.push(response.data);
-                    this.allTasks.push(response.data);
+                    this.$emit('newTask', response.data);
                 }).catch((err) => (console.log(err)))
             }
         },
