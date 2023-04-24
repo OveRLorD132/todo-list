@@ -5,11 +5,6 @@ let Database = require('../module/db/mysql');
 
 let database = new Database();
 
-router.post('/tasks/new/task', (req, res) => {
-    database.addToList(req.session.passport.user.id, req.body.text, req.body.type).then((task) => {
-        res.send(task);
-    });
-});
 router.get('/tasks/load/task', (req, res) => {
     database.loadFromList(req.session.passport.user.id)
         .then((tasks) => {
@@ -18,6 +13,32 @@ router.get('/tasks/load/task', (req, res) => {
         .catch((err) => {
             console.error(err);
         });
+});
+
+router.get('/tasks/load/subtasks', async(req, res) => {
+    try {
+        console.log(req);
+        let subtasks = await database.getSubtasksById(req.query.task_id);
+        res.send(subtasks);
+    } catch(err) {
+        console.log(err);
+    }
+});
+
+router.post('/tasks/new/task', (req, res) => {
+    database.addToList(req.session.passport.user.id, req.body.text, req.body.type).then((task) => {
+        res.send(task);
+    });
+});
+
+router.post('/tasks/new/subtask', async (req, res) => {
+    try {
+        let subtask = await database.insertSubtask(req.body.task_id, req.body.subtask);
+        //subtask.user_id = req.session.passport.user.id;
+        res.send(subtask);
+    } catch(err) {
+        console.error(err);
+    }
 });
 
 router.patch('/tasks/update/type', (req, res) => {
@@ -37,6 +58,16 @@ router.patch('/tasks/finished/task', (req, res) => {
         console.log(err);
         res.send('Error.');
     });
+});
+
+router.patch('/tasks/completed/subtask', async(req, res) => {
+    try {
+        await database.completeSubtask(req.body.task_id, req.body.bool);
+        res.send('Success')
+    } catch(err) {
+        console.log(err);
+        res.send('Error');
+    }
 })
 
 router.delete('/tasks/delete/task', (req, res) => {
@@ -48,16 +79,6 @@ router.delete('/tasks/delete/task', (req, res) => {
         res.end(`This line doesn't exist.`);
     });
 
-});
-
-router.post('/tasks/new/subtask', async (req, res) => {
-    try {
-        let subtask = await database.insertSubtask(req.body.task_id, req.body.subtask);
-        subtask.user_id = req.session.passport.user.id;
-        res.send(subtask);
-    } catch(err) {
-        console.error(err);
-    }
 });
 
 module.exports = router;

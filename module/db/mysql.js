@@ -135,6 +135,14 @@ class Database {
             });
         });
     }
+    async completeSubtask(id, bool) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`UPDATE subtasks SET isFinished = ? WHERE id = ?`, [bool, id], (err) => {
+                if(err) reject(err);
+                resolve();
+            });
+        });
+    }
 }
 
 

@@ -41,7 +41,7 @@
                 />
             </template>
         </div>
-        <task-info :chosenTask="chosenTask" @new-subtask="newSubtask">
+        <task-info :chosenTask="chosenTask" @new-subtask="newSubtask" @subtask-completed="handleCompleting">
             <task :task="chosenTask" :class="taskInfClass"
                 @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
             />
@@ -64,7 +64,7 @@ export default {
         Panel,
         FormCompoment,
         Task,
-        TaskInfo
+        TaskInfo,
     },
     data() {
         return {
@@ -82,7 +82,7 @@ export default {
             taskInfClass: 'taskInf'
         }
     },
-    created() {
+    async created() {
         axios.get('/tasks/load/task').then((tasks) => {
             this.allTasks = Array.from(tasks.data);
             for(let task of this.allTasks) {
@@ -124,9 +124,11 @@ export default {
             this.filteredFinishedTasks = this.finishedTasks;
             this.searchTasks = "";
         },
-        showInfo(task) {
+        async showInfo(task) {
             this.chosenTask = task;
+            if(!this.chosenTask.subtasks) await this.loadSubtasks(task);
             task.isChosen = true;
+            console.log(task);
         },
         showFinishedTasks() {
             this.finishedTasksIsVisible = !this.finishedTasksIsVisible;
@@ -169,14 +171,29 @@ export default {
             this.showTasks(this.allTasks);
             console.log(this.filteredFinishedTasks);
         },
-        async newSubtask(newSubtask) {
+        newSubtask(newSubtask) {
+            if(this.chosenTask.subtasks) this.chosenTask.subtasks.push(newSubtask);
+            else this.chosenTask.subtasks = [newSubtask];
+            console.log(this.chosenTask);
+        },
+        async loadSubtasks(task) {
             try {
-                let subtask = await axios.post('/tasks/new/subtask', {task_id: this.chosenTask.task_id, subtask: newSubtask});
-                console.log(subtask);
-            } catch(err) {
+                let subtasks = await axios.get('/tasks/load/subtasks', {params: {task_id: task.task_id}});
+                task.subtasks = [...subtasks.data];
+                console.log(task);
+            } catch (err){
                 console.error(err);
             }
-        }
+        },
+        async handleCompleting(obj) {
+            let index = obj.index;
+            let subtask = this.chosenTask.subtasks[index];
+            let bool = subtask.isFinished ? 0 : 1;
+            let res = await axios.patch('/tasks/completed/subtask', {task_id: subtask.id, bool: bool});
+            if(res.data === "Success") subtask.isFinished = bool;
+            console.log(res);
+            console.log(this.chosenTask);
+        },
     },
     watch: {
             searchTasks(newReq) {
