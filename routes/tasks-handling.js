@@ -78,7 +78,16 @@ router.delete('/tasks/delete/task', (req, res) => {
         console.log(err);
         res.end(`This line doesn't exist.`);
     });
+});
 
+router.delete('/tasks/delete/subtask', async(req, res) => {
+    try {
+        await database.deleteSubtask(req.query.id);
+        res.send('Success');
+    } catch(err) {
+        console.log(err);
+        res.send('Error')
+    }
 });
 
 module.exports = router;

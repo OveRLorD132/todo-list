@@ -3,7 +3,7 @@
         <slot></slot>
         <template v-if="chosenTask.subtasks">
             <subtask-component v-for="(subtask, index) of chosenTask.subtasks" :key="index" :subtask="subtask"
-             :index="index" @subtask-completed="emitCompleted"
+             :index="index" @subtask-completed="emitCompleted" @subtask-delete="emitDelete"
             />
         </template>
         <subtask-input @new-subtask="emitSubtask" :chosen-task="chosenTask"/>
@@ -23,14 +23,18 @@ export default {
     },
     emits: {
         "new-subtask": (subtask) => typeof subtask === "object" && subtask !== null,
-        'subtask-completed': null,
+        'subtask-completed': (index) => typeof index === "Object",
+        "subtask-delete": (index) => typeof index === "Object",
     },
     methods: {
         emitSubtask(subtask) {
             this.$emit('new-subtask', subtask);
         },
         emitCompleted(index) {
-            this.$emit('subtask-completed', {index: index});
+            this.$emit('subtask-completed', {index: index.index});
+        },
+        emitDelete(index) {
+            this.$emit('subtask-delete', {index: index.index});
         }
     }
     

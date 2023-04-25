@@ -41,7 +41,9 @@
                 />
             </template>
         </div>
-        <task-info :chosenTask="chosenTask" @new-subtask="newSubtask" @subtask-completed="handleCompleting">
+        <task-info :chosenTask="chosenTask" @new-subtask="newSubtask" @subtask-completed="handleCompleting"
+          @subtask-delete="subtaskDelete"
+        >
             <task :task="chosenTask" :class="taskInfClass"
                 @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
             />
@@ -164,12 +166,9 @@ export default {
             }
         },
         toImportant(response) {
-            console.log(response);
             if(response.task.isFinished) this.filteredFinishedTasks[response.index].type = response.task.type;
             else this.filteredTasks[response.index].type = response.task.type; 
-            console.log(this.filteredFinishedTasks);
             this.showTasks(this.allTasks);
-            console.log(this.filteredFinishedTasks);
         },
         newSubtask(newSubtask) {
             if(this.chosenTask.subtasks) this.chosenTask.subtasks.push(newSubtask);
@@ -180,7 +179,6 @@ export default {
             try {
                 let subtasks = await axios.get('/tasks/load/subtasks', {params: {task_id: task.task_id}});
                 task.subtasks = [...subtasks.data];
-                console.log(task);
             } catch (err){
                 console.error(err);
             }
@@ -191,9 +189,13 @@ export default {
             let bool = subtask.isFinished ? 0 : 1;
             let res = await axios.patch('/tasks/completed/subtask', {task_id: subtask.id, bool: bool});
             if(res.data === "Success") subtask.isFinished = bool;
-            console.log(res);
-            console.log(this.chosenTask);
         },
+        async subtaskDelete(obj) {
+            let index = obj.index;
+            let subtask = this.chosenTask.subtasks[index];
+            let res = await axios.delete(`/tasks/delete/subtask?id=${subtask.id}`)
+            if(res.data === "Success") this.chosenTask.subtasks.splice(index, 1);
+        }
     },
     watch: {
             searchTasks(newReq) {

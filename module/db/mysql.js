@@ -143,6 +143,19 @@ class Database {
             });
         });
     }
+    async deleteSubtask(id) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`DELETE FROM tasks where id = ?`, [id], (err) => {
+                if(err) reject(err);
+                resolve();
+            });
+        });
+    }
+    async clearSubtasks(task_id) {
+        return new Promise((resolve, reject) => {
+            
+        })
+    } 
 }
 
 
