@@ -8,7 +8,7 @@ class Subtask {
     }
     async completeSubtask() {
         let bool = this.isFinished ? 0 : 1;
-        let res = await axios.patch('/tasks/completed/subtask', {task_id: this.task_id, bool: bool});
+        let res = await axios.patch('/tasks/completed/subtask', {task_id: this.id, bool: bool});
         if(res.data === "Success") this.isFinished = bool;
     }
     async deleteSubtask() {

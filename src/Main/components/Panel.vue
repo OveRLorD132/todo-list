@@ -8,7 +8,7 @@
             :key="index"
             @mouseover="changeColor(channel)"
             @mouseleave="restoreColor(channel)"
-            :style="{backgroundColor: currChannel === channel ? '#BCF4E7' : 'transparent' }"
+            :style="{backgroundColor: currChannel === channel ? '#8BDDDB' : 'transparent' }"
             @click="changeChannel(channel)"
             class="channel">{{ channel }}</div>
         </div>

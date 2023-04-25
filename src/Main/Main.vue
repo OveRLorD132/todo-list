@@ -1,11 +1,14 @@
 <template>
     <error-component :error-message-is-visible="errorMessageIsVisible" @hide-error-message="hideErrorMessage"></error-component>
     <div id="line">
-        <div id="searchCont"><form @submit.prevent>
-            <input type="text" name="search" v-model="searchTasks" id="search">
-        </form>
-            <div id="errorButt"><button @click="showErrorMessage">Error</button></div>
+        <div id="mainLink"><a href="/tasks" name="Main Page">Main Page</a></div>
+        <div id="searchCont">
+            <form @submit.prevent>
+                <input type="text" name="search" v-model="searchTasks" id="search">
+            </form>
+            <div id="errorButt"><button @click="showErrorMessage" v-if="errButtIsVisible">Error</button></div>
         </div>
+        <div id="profileLinks"><a href="/profile" name="Profile">My Profile</a></div>
     </div>
     <div id="container">
         <panel @toggle-button="toggleButton" 
@@ -23,7 +26,7 @@
             <div id="tasks">
                 <task-component v-for="(task, ind) in tasks" :key="ind" @click="showInfo(task)" :class="taskClass"
                     :task="task" :index="ind" @toggle-finishing="toggleFinishing"
-                    @task-deleted="handleDeleting" @important="toImportant"
+                    @task-deleted="handleDeleting" @important="toImportant" :chosen-task="chosenTask"
                 />
             </div>
             <div v-if="finishedTasks.length > 0"
@@ -37,14 +40,14 @@
             <template v-if="finishedTasksIsVisible">
                 <task-component v-for="(task, index) in finishedTasks" :key="index" :task="task" @click="showInfo(task)"
                     :class="taskClass" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
-                    @important="toImportant"
+                    @important="toImportant" :chosen-task="chosenTask"
                 />
             </template>
         </div>
         <task-info :chosenTask="chosenTask" @new-subtask="newSubtask" @subtask-completed="handleCompleting"
-          @subtask-delete="subtaskDelete"
+          @subtask-delete="subtaskDelete"  @close-inf="closeInf" @delete-task="chosenTaskDelete"
         >
-            <task-component :task="chosenTask" :class="taskInfClass"
+            <task-component :task="chosenTask" :class="taskInfClass" :buttVisible="false"
                 @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
             />
         </task-info>
@@ -142,6 +145,12 @@ export default {
             if(response.task.isFinished) this.finishedTasks.splice(response.index, 1);
             else this.tasks.splice(response.index, 1);
         },
+        chosenTaskDelete() {
+            for(let i = 0; i < this.allTasks.length; i++) {
+                if(this.allTasks[i] === this.chosenTask) this.allTasks.splice(i, 1);
+                this.showTasks(this.allTasks);
+            }
+        },
         addTask(newTask) {
             this.allTasks.push(newTask);
             this.tasks.push(newTask);
@@ -158,9 +167,13 @@ export default {
                 return;
             }
         },
-        toImportant(response) {
-            if(response.task.isFinished) this.finishedTasks[response.index].type = response.task.type;
-            else this.tasks[response.index].type = response.task.type; 
+        closeInf() {
+            this.chosenTask = "";
+        },
+        async toImportant(response) {
+            let type = response.task.type;
+            if(type === "Important") await response.task.changeType("Today");
+            else await response.task.changeType("Important");
             this.showTasks(this.allTasks);
         },
         newSubtask(newSubtask) {

@@ -9,10 +9,11 @@ class Task {
         else this.taskPic = '/images/imp_not_chosen.png';
     }
     async changeType(type) {
+        if(type === "Important") this.taskPic = '/images/imp_chosen.png';
+        else this.taskPic = '/images/imp_not_chosen.png';
         let res = await axios.patch('/tasks/update/type', {task_id: this.task_id, type: type})
-        if(res === "Success.") this.type = type;
+        if(res.data === "Success.") this.type = type;
         console.log(this);
-        return res;
     }
     async finishTask() {
         let res = await axios.patch('/tasks/finished/task', {task_id: this.task_id, isFinished: !this.isFinished});

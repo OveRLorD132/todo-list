@@ -7,34 +7,40 @@
             <div class="taskText">{{ task.text }}</div>
         </div>
         <div class="buttons">
-            <div @click.stop="toImportant(task, index)"
+            <div @click.stop="toImportant(task)"
             @mouseover.stop="changePic(task)"
             @mouseleave.stop="restorePic(task)"
             class="toImportantButt"><img id="impImg" :src="task.taskPic"></div>
-            <div @click.stop="deleteElem(task, index)"
+            <div @click.stop="deleteElem(task, index)" v-show="buttVisible"
                 id="deleteButt"><img id="deleteImg" src="/images/delete.png">
             </div>
+            <template v-if="task === chosenTask && task.subtasks">
+                <subtask-component v-for="(subtask, index) in task.subtasks" 
+                    :subtask="subtask" :chosen-task="chosenTask" :index="index"
+                    >
+                </subtask-component>
+            </template>
         </div>
     </div>
 </template>
 
 <script>
 import axios from 'axios';
+import SubtaskComponent from './SubtaskComponent.vue';
 export default {
+    components: {
+        SubtaskComponent,
+    },
     props: {
         task: Object,
         index: Number,
+        buttVisible: {Boolean, default: true},
+        chosenTask: Object,
     },
     
     methods: {
-        toImportant(task, index) {
-            let type;
-            if(task.type === "Important") type = "Today";
-            else type = "Important";
-            axios.patch('/tasks/update/type', {task_id: task.task_id, type: type}).then((response) => {
-                task.type = type;
-                if(response.data === "Success.") this.$emit('important', {task: task, index: index});
-            });
+        async toImportant(task) {
+            this.$emit('important', {task: task});
         },
         async deleteElem(task, index) {
             let res = await task.deleteTask();
@@ -42,7 +48,6 @@ export default {
         },
         async finishTask(task, index) {
             await task.finishTask();
-            console.log(task);
             this.$emit('toggle-finishing', {task: task, index: index});
         },
         changePic(task) {

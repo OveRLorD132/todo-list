@@ -11,8 +11,12 @@
 }
 
 #taskInfContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     background-color: #ffffff;
-    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
 }
 
 #searchCont {
@@ -22,7 +26,6 @@
 }
 
 #search {
-    margin-left: 800px;
     width: 300px;
     height: 27px;
 }
@@ -35,8 +38,9 @@
 
 #panelContainer {
     background-color: #ffffff;
-    min-width: 280px;
-    min-height: 100%;
+    min-width: 270px;
+    max-width: 270px;
+    height: 100%;
 }
 
 #channels {
@@ -66,13 +70,13 @@
 }
 
 #impImg {
-    padding-right: 15px;
     cursor: pointer;
     width: 18px;
     height: 18px;
 }
 
 #deleteImg {
+    margin-left: 15px;
     padding-top: 5px;
     width: 15px;
     height: 15px;
@@ -122,6 +126,50 @@
     align-content: center;
 }
 
+#taskBlock {
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: #F9F9F9;
+    padding-left: 8px;
+}
+
+#closeCont {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 1.5rem;
+}
+
+#closeButt {
+    cursor: pointer;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: #212121;
+    border-radius: 3px;
+    background-color: #B7B7B7;
+    width: 80px;
+    height: 25px;
+}
+
+#buttContainer {
+    margin-bottom: 10px;
+    margin-right: 10px;
+    text-align: right;
+}
+
+#deleteTaskButt {
+    cursor: pointer;
+    color: #FAFAFA;
+    background-color: #CF1616;
+    width: 80px;
+    height: 25px;
+}
+
 .buttons {
     display: flex;
     align-content: center;
@@ -147,8 +195,14 @@
 }
 
 .taskInf {
-    margin-left: 5px;
-    height: 50px;
+    border-radius: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: solid;
+    border-width: 2px;
+    border-color: #BEC0C2;
+    width: calc(100% - 20px);
+    height: 40px;
     align-items: center;
     display: flex;
     justify-content: space-between;
@@ -181,6 +235,48 @@
     display: flex;
     align-items: center;
     flex-basis: 50%;
+}
+
+.sDelete {
+    display: flex;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+}
+
+.sComplete {
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+}
+
+.subtask {
+    border-radius: 5px;
+    margin-right: 20px;
+    padding-left: 5px;
+    height: 35px;
+    margin-top: 5px;
+    width: calc(100% - 10px);
+    display: flex;
+    justify-content: space-between;
+}
+
+.subtaskLeft {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.subtaskText {
+    margin-left: 5px;
+}
+
+.subtaskDelete {
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
 }
 
 .errorMessage {

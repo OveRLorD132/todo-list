@@ -1,18 +1,26 @@
 <template>
-    <div class="subtask">
+    <div class="subtask" :style="subtaskStyle">
         <div class="subtaskLeft">
+            <div class="completeButt" @click="subtaskComplete">
+                <img class="sComplete" src="/images/s-complete.png" />
+            </div>
             <div class="subtaskText">{{subtask.text}}</div>
-            <div class="completeButt" @click="subtaskComplete"> Compl</div>
         </div>
         <div class="subtaskDelete" @click="subtaskDelete">
-            Delete
+            <img class="sDelete" src="/images/s-delete.png"/>
         </div>
         </div>
 </template>
 
 <script>
 export default {
+    data() {
+        return {
+            
+        }
+    },
     props: {
+        chosenTask: Object || String,
         subtask: Object,
         index: Number
     },
@@ -26,6 +34,15 @@ export default {
         },
         subtaskDelete() {
             this.$emit('subtask-delete', {index: this.index});
+        }
+    },
+    computed: {
+        subtaskStyle() {
+            let backgroundColor = this.subtask.isFinished ? '#B5E9E8': 'transparent'; 
+            console.log(backgroundColor);
+            return {
+                'background-color': backgroundColor,
+            }
         }
     }
 }
