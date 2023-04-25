@@ -14,7 +14,7 @@
 
 <script>
 import axios from 'axios';
-import { getTransitionRawChildren } from 'vue';
+import Task from '../modules/Task';
 export default {
     data() {
         return {
@@ -27,14 +27,11 @@ export default {
         currChannel: String,
     },
     methods: {
-        addTask() {
+        async addTask() {
             if(this.newTask !== "") {
-                axios.post('/tasks/new/task', {text: this.newTask, type: this.currChannel}).then((response) => {
-                    this.newTask = "";
-                    if(response.data.type !== "Important") response.data.picSrc = '/images/imp_not_chosen.png';
-                    else if(response.data.type === "Important") response.data.picSrc = "/images/imp_chosen.png";
-                    this.$emit('newTask', response.data);
-                }).catch((err) => (console.log(err)))
+                let subtask = await axios.post('/tasks/new/task', {text: this.newTask, type: this.currChannel});
+                subtask = new Task(subtask.data);
+                this.$emit('newTask', subtask);
             }
         },
         onFormSelect() {

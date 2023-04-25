@@ -2,9 +2,9 @@
     <div class="subtask">
         <div class="subtaskLeft">
             <div class="subtaskText">{{subtask.text}}</div>
-            <div class="completeButt" @click="completeSubtask"> Compl</div>
+            <div class="completeButt" @click="subtaskComplete"> Compl</div>
         </div>
-        <div class="subtaskDelete" @click="deleteSubtask">
+        <div class="subtaskDelete" @click="subtaskDelete">
             Delete
         </div>
         </div>
@@ -17,14 +17,14 @@ export default {
         index: Number
     },
     emits: {
-        'subtask-completed': (index) => typeof index === "Object",
-        'subtask-delete': (index) => typeof index === "Object",
+        'subtask-completed': (index) => typeof index === "object",
+        'subtask-delete': (index) => typeof index === "object",
     },  
     methods: {
-        completeSubtask() {
+        subtaskComplete() {
             this.$emit('subtask-completed', {index: this.index});
         },
-        deleteSubtask() {
+        subtaskDelete() {
             this.$emit('subtask-delete', {index: this.index});
         }
     }

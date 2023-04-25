@@ -10,7 +10,7 @@
             <div @click.stop="toImportant(task, index)"
             @mouseover.stop="changePic(task)"
             @mouseleave.stop="restorePic(task)"
-            class="toImportantButt"><img id="impImg" :src="task.picSrc"></div>
+            class="toImportantButt"><img id="impImg" :src="task.taskPic"></div>
             <div @click.stop="deleteElem(task, index)"
                 id="deleteButt"><img id="deleteImg" src="/images/delete.png">
             </div>
@@ -36,30 +36,20 @@ export default {
                 if(response.data === "Success.") this.$emit('important', {task: task, index: index});
             });
         },
-        deleteElem(task, index) {
-            axios.delete('/tasks/delete/task', { data: task}).then((response) => {
-                if(response.data === "Success.") this.$emit('task-deleted', {task: task, index: index});
-            });
+        async deleteElem(task, index) {
+            let res = await task.deleteTask();
+            if(res.data === "Success.") this.$emit('task-deleted', {task: task, index: index})
         },
-        finishTask(task, index) {
-            let isFinished = 1;
-            if(task.isFinished) isFinished = 0;
-            axios.patch('/tasks/finished/task', {task_id: task.task_id, isFinished: isFinished}).then(response => {
-                if(response.data === "Success.") {
-                    task.isFinished = isFinished;
-                    this.$emit('toggle-finishing', {task: task, index: index});
-                }
-            });
+        async finishTask(task, index) {
+            await task.finishTask();
+            console.log(task);
+            this.$emit('toggle-finishing', {task: task, index: index});
         },
         changePic(task) {
-            if(task.type === "Important") return;
-            task.picSrc = '/images/imp_chosen.png';
-            return;
+            task.changePic();
         },
         restorePic(task) {
-            if(task.type === "Important") return;
-            task.picSrc = "/images/imp_not_chosen.png";
-            return;
+            task.restorePic();
         }
     }
 }

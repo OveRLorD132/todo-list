@@ -80,6 +80,7 @@ class Database {
         return new Promise((resolve, reject) => {
             this.db.query(`DELETE FROM tasks WHERE task_id = ?`, [id], (err) => {
                 if(err) reject(err);
+                this.clearSubtasks(id);
                 resolve();
             });
         });
@@ -145,7 +146,7 @@ class Database {
     }
     async deleteSubtask(id) {
         return new Promise((resolve, reject) => {
-            this.db.query(`DELETE FROM tasks where id = ?`, [id], (err) => {
+            this.db.query(`DELETE FROM subtasks WHERE id = ?`, [id], (err) => {
                 if(err) reject(err);
                 resolve();
             });
@@ -153,7 +154,10 @@ class Database {
     }
     async clearSubtasks(task_id) {
         return new Promise((resolve, reject) => {
-            
+            this.db.query(`DELETE FROM subtasks WHERE task_id = ?`, [task_id], (err) => {
+                if(err) reject(err);
+                resolve();
+            })
         })
     } 
 }

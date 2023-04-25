@@ -23,8 +23,8 @@ export default {
     },
     emits: {
         "new-subtask": (subtask) => typeof subtask === "object" && subtask !== null,
-        'subtask-completed': (index) => typeof index === "Object",
-        "subtask-delete": (index) => typeof index === "Object",
+        'subtask-completed': (index) => typeof index === "object",
+        "subtask-delete": (index) => typeof index === "object",
     },
     methods: {
         emitSubtask(subtask) {

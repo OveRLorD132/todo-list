@@ -8,6 +8,7 @@
 
 <script>
 import axios from 'axios';
+import Subtask from '../modules/Subtask';
 export default {
     props: {
         chosenTask: Object,
@@ -24,7 +25,9 @@ export default {
         async addSubtask() {
             try {
                 let subtask = await axios.post('/tasks/new/subtask', {task_id: this.chosenTask.task_id, subtask: this.newSubtask});
-                this.$emit('new-subtask', subtask.data);
+                subtask = new Subtask(subtask.data);
+                console.log(subtask);
+                this.$emit('new-subtask', subtask);
                 this.newSubtask = "";
             } catch(err) {
                 console.error(err);

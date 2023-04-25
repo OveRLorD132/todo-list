@@ -21,21 +21,21 @@
             :curr-channel="currChannel" ref="form">
             </form-compoment>
             <div id="tasks">
-                <task v-for="(task, ind) in filteredTasks" :key="ind" @click="showInfo(task)" :class="taskClass"
+                <task-component v-for="(task, ind) in tasks" :key="ind" @click="showInfo(task)" :class="taskClass"
                     :task="task" :index="ind" @toggle-finishing="toggleFinishing"
                     @task-deleted="handleDeleting" @important="toImportant"
                 />
             </div>
-            <div v-if="filteredFinishedTasks.length > 0"
+            <div v-if="finishedTasks.length > 0"
             @click="showFinishedTasks"
             id="finishedTasksContainer">
                 <div id="finishedTasksLabel">
                     <div> Finished Tasks</div>
-                    <div>{{ filteredFinishedTasks.length }}</div>
+                    <div>{{ finishedTasks.length }}</div>
                 </div>
             </div>
             <template v-if="finishedTasksIsVisible">
-                <task v-for="(task, index) in filteredFinishedTasks" :key="index" :task="task" @click="showInfo(task)"
+                <task-component v-for="(task, index) in finishedTasks" :key="index" :task="task" @click="showInfo(task)"
                     :class="taskClass" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
                     @important="toImportant"
                 />
@@ -44,7 +44,7 @@
         <task-info :chosenTask="chosenTask" @new-subtask="newSubtask" @subtask-completed="handleCompleting"
           @subtask-delete="subtaskDelete"
         >
-            <task :task="chosenTask" :class="taskInfClass"
+            <task-component :task="chosenTask" :class="taskInfClass"
                 @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
             />
         </task-info>
@@ -55,30 +55,31 @@
 import ErrorComponent from './components/ErrorComponent.vue';
 import Panel from './components/Panel.vue';
 import FormCompoment from './components/FormCompoment.vue';
-import Task from './components/Task.vue';
+import TaskComponent from './components/TaskComponent.vue';
 import VueAnimations from './VueAnimations';
 import TaskInfo from './components/TaskInfo.vue';
 import axios from 'axios';
+import Subtask from './modules/Subtask';
+import Task from './modules/Task';
+console.log(Task);
 export default {
     mixins: [VueAnimations],
     components: {
         ErrorComponent,
         Panel,
         FormCompoment,
-        Task,
+        TaskComponent,
         TaskInfo,
     },
     data() {
         return {
             allTasks: [],
             tasks: [],
-            filteredTasks: [],
             buttIsVisible: true,
             chosenTask: null,
             currChannel: 'Today',
             finishedTasks: [],
             finishedTasksIsVisible: false,
-            filteredFinishedTasks: [],
             searchTasks: "",
             taskClass: 'task',
             taskInfClass: 'taskInf'
@@ -86,16 +87,12 @@ export default {
     },
     async created() {
         axios.get('/tasks/load/task').then((tasks) => {
-            this.allTasks = Array.from(tasks.data);
-            for(let task of this.allTasks) {
+            for(let task of tasks.data) {
+                task = new Task(task);
                 if(task.isFinished) this.finishedTasks.push(task);
+                this.allTasks.push(task);
             }
-            tasks = tasks.data;
-            this.showTasks(tasks);
-            this.filteredTasks = this.tasks;
-            console.log(this.finishedTasks);
-            console.log(this.allTasks);
-            this.filteredFinishedTasks = this.finishedTasks; 
+            this.showTasks(this.allTasks);
         });
     },
     methods: {
@@ -103,7 +100,7 @@ export default {
             if(channel !== this.currChannel){
                 this.currChannel = channel;
                 this.showTasks(this.allTasks);
-                if(this.filteredTasks.indexOf(this.chosenTask) === -1 && this.filteredFinishedTasks.indexOf(this.chosenTask) === -1){
+                if(this.tasks.indexOf(this.chosenTask) === -1 && this.finishedTasks.indexOf(this.chosenTask) === -1){
                 this.chosenTask = "";
                 }
                 this.$refs.form.hideSubmit();
@@ -111,8 +108,6 @@ export default {
         },
         showTasks(tasks) {
             this.tasks = tasks.filter(task => {
-                if(task.type !== "Important") task.picSrc = "/images/imp_not_chosen.png";
-                else if(task.type === "Important") task.picSrc = "/images/imp_chosen.png";
                 if(task.isFinished) return false;
                 if(this.currChannel !== "All tasks") return task.type == this.currChannel;
                 return task;
@@ -122,8 +117,6 @@ export default {
                 if(this.currChannel !== "All tasks") return task.type == this.currChannel;
                 return task;
             });
-            this.filteredTasks = this.tasks;
-            this.filteredFinishedTasks = this.finishedTasks;
             this.searchTasks = "";
         },
         async showInfo(task) {
@@ -146,8 +139,8 @@ export default {
         },
         handleDeleting(response) {
             if(response.task === this.chosenTask) this.chosenTask = "";
-            if(response.task.isFinished) this.filteredFinishedTasks.splice(response.index, 1);
-            else this.filteredTasks.splice(response.index, 1);
+            if(response.task.isFinished) this.finishedTasks.splice(response.index, 1);
+            else this.tasks.splice(response.index, 1);
         },
         addTask(newTask) {
             this.allTasks.push(newTask);
@@ -156,29 +149,33 @@ export default {
         toggleFinishing(response) {
             if(response.task.isFinished) {
                 this.tasks.splice(response.index, 1);
-                this.filteredFinishedTasks.push(response.task);
+                this.finishedTasks.push(response.task);
                 return;
             } else if(!response.task.isFinished) {
                 console.log('not finished');
                 this.finishedTasks.splice(response.index, 1);
-                this.filteredTasks.push(response.task);
+                this.fasks.push(response.task);
                 return;
             }
         },
         toImportant(response) {
-            if(response.task.isFinished) this.filteredFinishedTasks[response.index].type = response.task.type;
-            else this.filteredTasks[response.index].type = response.task.type; 
+            if(response.task.isFinished) this.finishedTasks[response.index].type = response.task.type;
+            else this.tasks[response.index].type = response.task.type; 
             this.showTasks(this.allTasks);
         },
         newSubtask(newSubtask) {
             if(this.chosenTask.subtasks) this.chosenTask.subtasks.push(newSubtask);
             else this.chosenTask.subtasks = [newSubtask];
-            console.log(this.chosenTask);
         },
         async loadSubtasks(task) {
             try {
+                if(!task.subtasks) task.subtasks = [];
                 let subtasks = await axios.get('/tasks/load/subtasks', {params: {task_id: task.task_id}});
-                task.subtasks = [...subtasks.data];
+                for(let subtask of subtasks.data) {
+                    subtask = new Subtask(subtask);
+                    task.subtasks.push(subtask);
+                }
+                console.log(task);
             } catch (err){
                 console.error(err);
             }
@@ -186,33 +183,28 @@ export default {
         async handleCompleting(obj) {
             let index = obj.index;
             let subtask = this.chosenTask.subtasks[index];
-            let bool = subtask.isFinished ? 0 : 1;
-            let res = await axios.patch('/tasks/completed/subtask', {task_id: subtask.id, bool: bool});
-            if(res.data === "Success") subtask.isFinished = bool;
+            await subtask.completeSubtask();
         },
         async subtaskDelete(obj) {
             let index = obj.index;
             let subtask = this.chosenTask.subtasks[index];
-            let res = await axios.delete(`/tasks/delete/subtask?id=${subtask.id}`)
-            if(res.data === "Success") this.chosenTask.subtasks.splice(index, 1);
+            await subtask.deleteSubtask();
+            this.chosenTask.subtasks.splice(index, 1);
         }
     },
     watch: {
             searchTasks(newReq) {
                 if(newReq !== "") {
-                    this.filteredTasks = this.tasks.filter(task => {
+                    this.tasks = this.tasks.filter(task => {
                         if(task.isFinished) return;
                         return task.text.toLowerCase().indexOf(newReq.toLowerCase()) !== -1;
                     });
-                    this.filteredFinishedTasks = this.finishedTasks.filter(task => {
+                    this.finishedTasks = this.finishedTasks.filter(task => {
                         if(!task.isFinished) return;
                         return task.text.toLowerCase().indexOf(newReq.toLowerCase()) !== -1;
                     });
                 } 
-                else {
-                    this.filteredFinishedTasks = this.finishedTasks;
-                    this.filteredTasks = this.tasks;
-                }
+                else this.showTasks(this.allTasks);
             }
         }  
 }
