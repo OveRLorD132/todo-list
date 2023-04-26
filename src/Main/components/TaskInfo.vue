@@ -5,7 +5,7 @@
                 <div id="infLabel">Task:</div>
                 <button id="closeButt" @click="closeInf">Close</button>
             </div>
-            <div id="taskBlock">
+            <div id="taskBlock" :style="{backgroundColor: chosenTask.subtasks.length > 0 ? '#F9F9F9' : '#ffffff'}">
                 <slot></slot>
                 <template v-if="chosenTask.subtasks">
                     <subtask-component v-for="(subtask, index) of chosenTask.subtasks" :key="index" :subtask="subtask"
@@ -32,6 +32,10 @@ export default {
         chosenTask: null,
     },
     emits: {
+        'task-error': ({operation, src, code}) => {
+            if( typeof operation !== "string" || typeof code !== "number" || typeof src !== "string") return false;
+            else return true;
+        },
         "new-subtask": (subtask) => typeof subtask === "object" && subtask !== null,
         'subtask-completed': (index) => typeof index === "object",
         "subtask-delete": (index) => typeof index === "object",
@@ -50,10 +54,11 @@ export default {
         closeInf() {
             this.$emit('close-inf');
         },
-        taskDelete() {
-            this.chosenTask.deleteTask();
-            this.$emit('delete-task');
-        }
+        async taskDelete() {
+            let res = await this.chosenTask.deleteTask();
+            if(res === 404) this.$emit('task-error', {operation: 'deleting', src: 'task', code: 404});
+            else this.$emit('delete-task');
+        },
     }
     
 }

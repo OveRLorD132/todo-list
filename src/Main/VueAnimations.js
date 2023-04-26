@@ -3,7 +3,6 @@ export default {
         return {
             panelIsVisible: false,
             buttIsVisible: true,
-            errorMessageIsVisible: false,
         }
     },
     methods: {

@@ -1,7 +1,7 @@
 <template>
-    <div id="subtaskInput">
+    <div id="inputContainer">
         <form @submit.prevent="addSubtask">
-            <input type="text" placeholder="Enter subtask..." name="subtasl" v-model="newSubtask" />
+            <input id="subtaskInput" type="text" placeholder="Enter subtask..." name="subtasl" v-model="newSubtask" />
         </form>
     </div>
 </template>
@@ -23,6 +23,7 @@ export default {
     },
     methods: {
         async addSubtask() {
+            if(this.newSubtask === "") return
             try {
                 let subtask = await axios.post('/tasks/new/subtask', {task_id: this.chosenTask.task_id, subtask: this.newSubtask});
                 subtask = new Subtask(subtask.data);

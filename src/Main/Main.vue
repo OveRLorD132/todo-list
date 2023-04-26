@@ -1,5 +1,5 @@
 <template>
-    <error-component :error-message-is-visible="errorMessageIsVisible" @hide-error-message="hideErrorMessage"></error-component>
+    <error-component :error="error" @hide-error-message="hideErrorMessage"></error-component>
     <div id="line">
         <div id="mainLink"><a href="/tasks" name="Main Page">Main Page</a></div>
         <div id="searchCont">
@@ -24,31 +24,34 @@
             :curr-channel="currChannel" ref="form">
             </form-compoment>
             <div id="tasks">
-                <task-component v-for="(task, ind) in tasks" :key="ind" @click="showInfo(task)" :class="taskClass"
+                <task-component v-for="(task, ind) in tasks" :key="ind" @click="showInfo(task)" classProp="task"
                     :task="task" :index="ind" @toggle-finishing="toggleFinishing"
                     @task-deleted="handleDeleting" @important="toImportant" :chosen-task="chosenTask"
+                    @subtask-completed="handleCompleting" @subtask-delete="subtaskDelete" @task-error="errorHandling"
                 />
             </div>
             <div v-if="finishedTasks.length > 0"
             @click="showFinishedTasks"
             id="finishedTasksContainer">
                 <div id="finishedTasksLabel">
-                    <div> Finished Tasks</div>
-                    <div>{{ finishedTasks.length }}</div>
+                    <div>Finished Tasks: </div>
+                    <div id="finLen"> {{ finishedTasks.length }}</div>
                 </div>
             </div>
             <template v-if="finishedTasksIsVisible">
                 <task-component v-for="(task, index) in finishedTasks" :key="index" :task="task" @click="showInfo(task)"
-                    :class="taskClass" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
-                    @important="toImportant" :chosen-task="chosenTask"
+                    classProp="task" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
+                    @important="toImportant" :chosen-task="chosenTask" @subtask-completed="handleCompleting" 
+                    @subtask-delete="subtaskDelete" @task-error="errorHandling" 
                 />
             </template>
         </div>
         <task-info :chosenTask="chosenTask" @new-subtask="newSubtask" @subtask-completed="handleCompleting"
           @subtask-delete="subtaskDelete"  @close-inf="closeInf" @delete-task="chosenTaskDelete"
+          @task-error="errorHandling"
         >
-            <task-component :task="chosenTask" :class="taskInfClass" :buttVisible="false"
-                @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
+            <task-component :task="chosenTask" classProp="taskInf" :buttVisible="false"
+                @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing" @task-error="errorHandling"
             />
         </task-info>
     </div>
@@ -84,8 +87,7 @@ export default {
             finishedTasks: [],
             finishedTasksIsVisible: false,
             searchTasks: "",
-            taskClass: 'task',
-            taskInfClass: 'taskInf'
+            error: {operation: "deleting", src: "task", code: 404},
         }
     },
     async created() {
@@ -132,7 +134,7 @@ export default {
             this.finishedTasksIsVisible = !this.finishedTasksIsVisible;
         },
         hideErrorMessage() {
-            this.errorMessageIsVisible = false;
+            this.error = "";
         },
         toggleButton() {
             this.buttIsVisible = !this.buttIsVisible;
@@ -144,6 +146,7 @@ export default {
             if(response.task === this.chosenTask) this.chosenTask = "";
             if(response.task.isFinished) this.finishedTasks.splice(response.index, 1);
             else this.tasks.splice(response.index, 1);
+            this.allTasks.splice(this.allTasks.indexOf(response.task), 1);
         },
         chosenTaskDelete() {
             for(let i = 0; i < this.allTasks.length; i++) {
@@ -159,21 +162,24 @@ export default {
             if(response.task.isFinished) {
                 this.tasks.splice(response.index, 1);
                 this.finishedTasks.push(response.task);
+                console.log(this.allTasks);
                 return;
             } else if(!response.task.isFinished) {
                 console.log('not finished');
                 this.finishedTasks.splice(response.index, 1);
-                this.fasks.push(response.task);
+                this.tasks.push(response.task);
+                console.log(this.allTasks);
                 return;
             }
+        },
+        errorHandling(err) {
+            console.log(err);
+            this.error = err;
         },
         closeInf() {
             this.chosenTask = "";
         },
-        async toImportant(response) {
-            let type = response.task.type;
-            if(type === "Important") await response.task.changeType("Today");
-            else await response.task.changeType("Important");
+        async toImportant() {
             this.showTasks(this.allTasks);
         },
         newSubtask(newSubtask) {

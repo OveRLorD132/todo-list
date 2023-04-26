@@ -4,7 +4,7 @@
             <div class="completeButt" @click="subtaskComplete">
                 <img class="sComplete" src="/images/s-complete.png" />
             </div>
-            <div class="subtaskText">{{subtask.text}}</div>
+            <div class="subtaskText" :style="{textDecoration: subtask.isFinished ? 'line-through' : 'none'}">{{subtask.text}}</div>
         </div>
         <div class="subtaskDelete" @click="subtaskDelete">
             <img class="sDelete" src="/images/s-delete.png"/>
@@ -20,7 +20,7 @@ export default {
         }
     },
     props: {
-        chosenTask: Object || String,
+        chosenTask: null,
         subtask: Object,
         index: Number
     },
@@ -38,7 +38,7 @@ export default {
     },
     computed: {
         subtaskStyle() {
-            let backgroundColor = this.subtask.isFinished ? '#B5E9E8': 'transparent'; 
+            let backgroundColor = this.subtask.isFinished ? '#D1D1D1': '#E6E6E6'; 
             console.log(backgroundColor);
             return {
                 'background-color': backgroundColor,

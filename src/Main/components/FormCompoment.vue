@@ -29,10 +29,11 @@ export default {
     methods: {
         async addTask() {
             if(this.newTask !== "") {
-                let subtask = await axios.post('/tasks/new/task', {text: this.newTask, type: this.currChannel});
-                subtask = new Task(subtask.data);
-                this.$emit('newTask', subtask);
+                let task = await axios.post('/tasks/new/task', {text: this.newTask, type: this.currChannel});
+                task = new Task(task.data);
+                this.$emit('newTask', task);
             }
+            this.newTask = "";
         },
         onFormSelect() {
             this.submitIsVisible = true;

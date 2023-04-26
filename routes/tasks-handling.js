@@ -44,18 +44,20 @@ router.post('/tasks/new/subtask', async (req, res) => {
 router.patch('/tasks/update/type', (req, res) => {
     console.log(req);
     database.changeType(req.body.task_id, req.body.type,).then(() => {
-        res.send("Success.");
+        res.send("Success");
     }).catch((err) => {
         console.log(err);
-        res.send("Error.");
+        res.status(404);
+        res.send("Error");
     });
 });
 
 router.patch('/tasks/finished/task', (req, res) => {
     database.setFinished(req.body.task_id, req.body.isFinished).then(() => {
-        res.send('Success.');
+        res.send('Success');
     }).catch((err) => {
         console.log(err);
+        res.status(404);
         res.send('Error.');
     });
 });
@@ -65,7 +67,7 @@ router.patch('/tasks/completed/subtask', async(req, res) => {
         await database.completeSubtask(req.body.task_id, req.body.bool);
         res.send('Success')
     } catch(err) {
-        console.log(err);
+        res.status(500);
         res.send('Error');
     }
 })
@@ -73,10 +75,10 @@ router.patch('/tasks/completed/subtask', async(req, res) => {
 router.delete('/tasks/delete/task', (req, res) => {
     database.deleteLine(req.body.task_id).then(() => {
         console.log('Deleted');
-        res.end('Success.');
+        res.end('Success');
     }).catch(err => {
-        console.log(err);
-        res.end(`This line doesn't exist.`);
+        res.status(404);
+        res.send(err);
     });
 });
 

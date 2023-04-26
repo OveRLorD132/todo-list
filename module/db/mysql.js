@@ -70,16 +70,18 @@ class Database {
     }
     async changeType(id, type) {
         return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE tasks SET type = ? WHERE task_id = ?`, [type, id], (err) => {
+            this.db.query(`UPDATE tasks SET type = ? WHERE task_id = ?`, [type, id], (err, res) => {
                 if(err) reject(err);
+                if(res.affectedRows === 0) reject(new Error("Data missing."));
                 resolve();
             });
         });
     }
     async deleteLine(id) {
         return new Promise((resolve, reject) => {
-            this.db.query(`DELETE FROM tasks WHERE task_id = ?`, [id], (err) => {
+            this.db.query(`DELETE FROM tasks WHERE task_id = ?`, [id], (err, res) => {
                 if(err) reject(err);
+                if(res.affectedRows === 0) reject(new Error("Data missing."));
                 this.clearSubtasks(id);
                 resolve();
             });
@@ -88,8 +90,9 @@ class Database {
     async setFinished(id, bool) {
         console.log(bool);
         return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE tasks SET isFinished = ? WHERE task_id = ?`, [bool ,id], (err, result) => {
+            this.db.query(`UPDATE tasks SET isFinished = ? WHERE task_id = ?`, [bool ,id], (err, res) => {
                 if(err) reject(err);
+                if(res.affectedRows === 0) reject(new Error("Data missing."));
                 resolve();
             })
         });

@@ -8,7 +8,7 @@
             :key="index"
             @mouseover="changeColor(channel)"
             @mouseleave="restoreColor(channel)"
-            :style="{backgroundColor: currChannel === channel ? '#8BDDDB' : 'transparent' }"
+            :style="{backgroundColor: currChannel === channel ? '#E0EDF4' : 'transparent' }"
             @click="changeChannel(channel)"
             class="channel">{{ channel }}</div>
         </div>
@@ -38,7 +38,7 @@ export default {
         changeColor(channel) {
             if(channel !== this.currChannel) {
                 let element = event.target
-                element.style.backgroundColor = '#EBEBEB'
+                element.style.backgroundColor = '#EEF4F9'
             }
         },
         restoreColor(channel) {
