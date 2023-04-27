@@ -141,16 +141,18 @@ class Database {
     }
     async completeSubtask(id, bool) {
         return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE subtasks SET isFinished = ? WHERE id = ?`, [bool, id], (err) => {
+            this.db.query(`UPDATE subtasks SET isFinished = ? WHERE id = ?`, [bool, id], (err, res) => {
                 if(err) reject(err);
+                if(res.affectedRows === 0) reject(new Error("Data missing."));
                 resolve();
             });
         });
     }
     async deleteSubtask(id) {
         return new Promise((resolve, reject) => {
-            this.db.query(`DELETE FROM subtasks WHERE id = ?`, [id], (err) => {
+            this.db.query(`DELETE FROM subtasks WHERE id = ?`, [id], (err, res) => {
                 if(err) reject(err);
+                if(res.affectedRows === 0) reject(new Error("Data missing."));
                 resolve();
             });
         });
@@ -162,7 +164,15 @@ class Database {
                 resolve();
             })
         })
-    } 
+    }
+    async addNote(note, id) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`UPDATE tasks SET note = ? WHERE task_id = ?`, [note, id], (err) => {
+                if(err) reject(err);
+                resolve();
+            })
+        })
+    }
 }
 
 

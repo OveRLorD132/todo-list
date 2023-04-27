@@ -38,6 +38,20 @@ class Task {
     restorePic() {
         if(this.type !== "Important") this.taskPic = '/images/imp_not_chosen.png';
     }
+    setNote(newNote, status) {
+        if(newNote === this.note) return;
+        if(status && !newNote) return;
+        this.note = newNote;
+        this.uploadNote(this.note);
+    }
+    async uploadNote(note) {
+        try {
+            console.log(this.task_id);
+            let res = await axios.patch('/tasks/upload/note', {newNote: note, task_id: this.task_id});
+        } catch(err) {
+            console.log(err);
+        }
+    }
 }
 
 export default Task;

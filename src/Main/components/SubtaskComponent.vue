@@ -25,15 +25,21 @@ export default {
         index: Number
     },
     emits: {
-        'subtask-completed': (index) => typeof index === "object",
+        'subtask-error': (operation, src, code) => {
+            if(typeof operation !== "string" || typeof src !== 'string' || typeof code !== "number") return false;
+            return true;
+        },
         'subtask-delete': (index) => typeof index === "object",
     },  
     methods: {
-        subtaskComplete() {
-            this.$emit('subtask-completed', {index: this.index});
+        async subtaskComplete() {
+            let res = await this.subtask.completeSubtask();
+            if(res === 404) this.$emit('subtask-error', {operation: "completing", src: 'subtask', code: 404});
         },
-        subtaskDelete() {
-            this.$emit('subtask-delete', {index: this.index});
+        async subtaskDelete() {
+            let res = await this.subtask.deleteSubtask();
+            if(res === 404) this.$emit("subtask-error", {operation: "deleting", src: "subtask", code: 404});
+            if(res === "Success") this.$emit('subtask-delete', {index: this.index});
         }
     },
     computed: {

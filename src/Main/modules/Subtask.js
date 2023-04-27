@@ -7,12 +7,24 @@ class Subtask {
         }
     }
     async completeSubtask() {
-        let bool = this.isFinished ? 0 : 1;
-        let res = await axios.patch('/tasks/completed/subtask', {task_id: this.id, bool: bool});
-        if(res.data === "Success") this.isFinished = bool;
+        try {
+            let bool = this.isFinished ? 0 : 1;
+            let res = await axios.patch('/tasks/completed/subtask', {task_id: this.id, bool: bool});
+            if(res.data === "Success") this.isFinished = bool;
+            return "Success";
+        } catch(err) {
+            console.log(err);
+            return 404;
+        }
     }
     async deleteSubtask() {
-        let res = await axios.delete(`/tasks/delete/subtask?id=${this.id}`);
+        try {
+            let res = await axios.delete(`/tasks/delete/subtask?id=${this.id}`);
+            if(res.data === "Success") return "Success";
+        } catch(err) {
+            console.log(err);
+            return 404;
+        }
     }
 }
 

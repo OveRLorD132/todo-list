@@ -67,8 +67,17 @@ router.patch('/tasks/completed/subtask', async(req, res) => {
         await database.completeSubtask(req.body.task_id, req.body.bool);
         res.send('Success')
     } catch(err) {
-        res.status(500);
+        if(/Data missing\./.test(err)) res.status(404);
+        console.log(err);
         res.send('Error');
+    }
+})
+
+router.patch('/tasks/upload/note', async(req, res) => {
+    try {
+        await database.addNote(req.body.newNote, req.body.task_id);
+    } catch(err) {
+        console.log(err);
     }
 })
 
@@ -77,7 +86,7 @@ router.delete('/tasks/delete/task', (req, res) => {
         console.log('Deleted');
         res.end('Success');
     }).catch(err => {
-        res.status(404);
+        if(/Data missing\./.test(err)) res.status(404);
         res.send(err);
     });
 });
@@ -88,7 +97,8 @@ router.delete('/tasks/delete/subtask', async(req, res) => {
         res.send('Success');
     } catch(err) {
         console.log(err);
-        res.send('Error')
+        if(/Data missing\./.test(err)) res.status(404);
+        res.send("Error");
     }
 });
 

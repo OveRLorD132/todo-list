@@ -6,7 +6,6 @@
             <form @submit.prevent>
                 <input type="text" name="search" v-model="searchTasks" id="search">
             </form>
-            <div id="errorButt"><button @click="showErrorMessage" v-if="errButtIsVisible">Error</button></div>
         </div>
         <div id="profileLinks"><a href="/profile" name="Profile">My Profile</a></div>
     </div>
@@ -24,11 +23,13 @@
             :curr-channel="currChannel" ref="form">
             </form-compoment>
             <div id="tasks">
-                <task-component v-for="(task, ind) in tasks" :key="ind" @click="showInfo(task)" classProp="task"
-                    :task="task" :index="ind" @toggle-finishing="toggleFinishing"
-                    @task-deleted="handleDeleting" @important="toImportant" :chosen-task="chosenTask"
-                    @subtask-completed="handleCompleting" @subtask-delete="subtaskDelete" @task-error="errorHandling"
-                />
+                <transition-group name="tasks-show">
+                    <task-component v-for="(task, ind) in tasks" :key="task.task_id" @click="showInfo(task)" classProp="task"
+                        :task="task" :index="ind" @toggle-finishing="toggleFinishing"
+                        @task-deleted="handleDeleting" @important="toImportant" :chosen-task="chosenTask"
+                        @subtask-delete="subtaskDelete" @task-error="errorHandling"
+                    />
+                </transition-group>
             </div>
             <div v-if="finishedTasks.length > 0"
             @click="showFinishedTasks"
@@ -38,15 +39,17 @@
                     <div id="finLen"> {{ finishedTasks.length }}</div>
                 </div>
             </div>
-            <template v-if="finishedTasksIsVisible">
-                <task-component v-for="(task, index) in finishedTasks" :key="index" :task="task" @click="showInfo(task)"
-                    classProp="task" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
-                    @important="toImportant" :chosen-task="chosenTask" @subtask-completed="handleCompleting" 
-                    @subtask-delete="subtaskDelete" @task-error="errorHandling" 
-                />
-            </template>
+            <transition-group name="tasks-show">
+                <div v-if="finishedTasksIsVisible">
+                    <task-component v-for="(task, index) in finishedTasks" :key="task.task_id" :task="task" @click="showInfo(task)"
+                        classProp="task" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
+                        @important="toImportant" :chosen-task="chosenTask"
+                        @subtask-delete="subtaskDelete" @task-error="errorHandling" 
+                    />
+                </div>
+            </transition-group>  
         </div>
-        <task-info :chosenTask="chosenTask" @new-subtask="newSubtask" @subtask-completed="handleCompleting"
+        <task-info :chosenTask="chosenTask" @new-subtask="newSubtask"
           @subtask-delete="subtaskDelete"  @close-inf="closeInf" @delete-task="chosenTaskDelete"
           @task-error="errorHandling"
         >
@@ -62,20 +65,21 @@ import ErrorComponent from './components/ErrorComponent.vue';
 import Panel from './components/Panel.vue';
 import FormCompoment from './components/FormCompoment.vue';
 import TaskComponent from './components/TaskComponent.vue';
-import VueAnimations from './VueAnimations';
 import TaskInfo from './components/TaskInfo.vue';
 import axios from 'axios';
 import Subtask from './modules/Subtask';
 import Task from './modules/Task';
 console.log(Task);
 export default {
-    mixins: [VueAnimations],
     components: {
         ErrorComponent,
         Panel,
         FormCompoment,
         TaskComponent,
         TaskInfo,
+    },
+    props: {
+        buttDisabled: Boolean,
     },
     data() {
         return {
@@ -87,7 +91,10 @@ export default {
             finishedTasks: [],
             finishedTasksIsVisible: false,
             searchTasks: "",
-            error: {operation: "deleting", src: "task", code: 404},
+            error: "",
+            panelIsVisible: false,
+            buttIsVisible: true,
+            isDisabled: true,
         }
     },
     async created() {
@@ -153,6 +160,7 @@ export default {
                 if(this.allTasks[i] === this.chosenTask) this.allTasks.splice(i, 1);
                 this.showTasks(this.allTasks);
             }
+            this.chosenTask = "";
         },
         addTask(newTask) {
             this.allTasks.push(newTask);
@@ -171,6 +179,7 @@ export default {
                 console.log(this.allTasks);
                 return;
             }
+            this.isDisabled = false;
         },
         errorHandling(err) {
             console.log(err);
@@ -199,37 +208,43 @@ export default {
                 console.error(err);
             }
         },
-        async handleCompleting(obj) {
-            let index = obj.index;
-            let subtask = this.chosenTask.subtasks[index];
-            await subtask.completeSubtask();
-        },
         async subtaskDelete(obj) {
-            let index = obj.index;
-            let subtask = this.chosenTask.subtasks[index];
-            await subtask.deleteSubtask();
-            this.chosenTask.subtasks.splice(index, 1);
+            this.chosenTask.subtasks.splice(obj.index, 1);
         }
     },
     watch: {
             searchTasks(newReq) {
                 if(newReq !== "") {
-                    this.tasks = this.tasks.filter(task => {
+                    this.tasks = this.allTasks.filter(task => {
                         if(task.isFinished) return;
                         return task.text.toLowerCase().indexOf(newReq.toLowerCase()) !== -1;
                     });
-                    this.finishedTasks = this.finishedTasks.filter(task => {
+                    this.finishedTasks = this.allTasks.filter(task => {
                         if(!task.isFinished) return;
                         return task.text.toLowerCase().indexOf(newReq.toLowerCase()) !== -1;
                     });
                 } 
                 else this.showTasks(this.allTasks);
-            }
+            },
         }  
 }
 
 </script>
 
 <style>
+.tasks-show-enter-active {
+    transition: all 0.5s ease-out;
+}
+.tasks-show-leave-active {
+    transition: all 0.3s linear;
+}
 
+.tasks-show-enter-from {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+.tasks-show-leave-to {
+    opacity: 0;
+    transform: translateX(10px);
+}
 </style>

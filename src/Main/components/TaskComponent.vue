@@ -21,7 +21,7 @@
             <transition-group name="subtasks-list">
                 <subtask-component v-for="(subtask, index) in task.subtasks" 
                     :subtask="subtask" :chosen-task="chosenTask" :index="index" :key="subtask.id"
-                    @subtask-completed="emitCompleted" @subtask-delete="emitDelete"
+                    @subtask-delete="emitDelete" @subtask-error="errorEmit"
                     >
                 </subtask-component>
             </transition-group>
@@ -30,13 +30,13 @@
 </template>
 
 <script>
-import axios from 'axios';
 import SubtaskComponent from './SubtaskComponent.vue';
 export default {
     components: {
         SubtaskComponent,
     },
     props: {
+        buttDisable: Boolean,
         task: Object,
         index: Number,
         buttVisible: {Boolean, default: true},
@@ -51,8 +51,12 @@ export default {
         'important': null, //event to update view on page
         'task-deleted': (obj) => typeof obj === "object",
         'toggle-finishing': (obj) => typeof obj === "object",
-        'subtask-completed': (index) => typeof index === "object",
         'subtask-delete': (index) => typeof index === "object",
+    },
+    data() {
+        return {
+            isDisabled: false,
+        }
     },
     created() {
         //console.log(this.classProp);
@@ -76,6 +80,10 @@ export default {
             
         },
         async finishTask(task, index) {
+            console.log(this.isDisabled);
+            if(this.isDisabled) return;
+            this.isDisabled = true;
+            setTimeout(() => {console.log(this.isDisabled)}, 1000);
             let res = await task.finishTask();
             if(res === 404) this.$emit('task-error', {operation: 'finishing', src: "task", code: res})
             if(res === "Success")this.$emit('toggle-finishing', {task: task, index: index});
@@ -92,25 +100,34 @@ export default {
         emitDelete(obj) {
             this.$emit('subtask-delete', {index: obj.index});
         },
+        errorEmit(obj) {
+            this.$emit('task-error', obj);
+        }
+    },
+    watch: {
+        buttDisabled(newVal, oldval) {
+            console.log(oldval);
+            this.isDisabled = newVal;
+        } 
     }
 }
 </script>
 
 <style>
 .subtasks-list-leave-active {
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 .subtasks-list-enter-active {
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 .subtasks-list-enter-from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
 }
 
 .subtasks-list-leave-to {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(20px);
 }
 </style>
