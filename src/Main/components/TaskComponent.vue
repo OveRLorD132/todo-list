@@ -17,13 +17,15 @@
             </div>
             </div>
         </div>
-        <template v-if="task === chosenTask && task.subtasks">
+        <div v-if="task === chosenTask && task.subtasks">
+            <transition-group name="subtasks-list">
                 <subtask-component v-for="(subtask, index) in task.subtasks" 
-                    :subtask="subtask" :chosen-task="chosenTask" :index="index"
+                    :subtask="subtask" :chosen-task="chosenTask" :index="index" :key="subtask.id"
                     @subtask-completed="emitCompleted" @subtask-delete="emitDelete"
                     >
                 </subtask-component>
-        </template>
+            </transition-group>
+        </div>
     </div>
 </template>
 
@@ -95,5 +97,20 @@ export default {
 </script>
 
 <style>
+.subtasks-list-leave-active {
+    transition: all 0.5s ease;
+}
+.subtasks-list-enter-active {
+    transition: all 0.5s ease;
+}
 
+.subtasks-list-enter-from {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.subtasks-list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
 </style>

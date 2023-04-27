@@ -8,9 +8,12 @@
             <div id="taskBlock" :style="{backgroundColor: chosenTask.subtasks.length > 0 ? '#F9F9F9' : '#ffffff'}">
                 <slot></slot>
                 <template v-if="chosenTask.subtasks">
-                    <subtask-component v-for="(subtask, index) of chosenTask.subtasks" :key="index" :subtask="subtask"
-                      :index="index" @subtask-completed="emitCompleted" @subtask-delete="emitDelete" :chosen-task="chosenTask"
-                    />
+                    <transition-group name="subtasks">
+                        <subtask-component v-for="(subtask, index) of chosenTask.subtasks" :key="subtask.id" :subtask="subtask"
+                          :index="index" @subtask-completed="emitCompleted" @subtask-delete="emitDelete" :chosen-task="chosenTask"
+                        />
+                    </transition-group>
+                    
                 </template>
             </div>
             <subtask-input @new-subtask="emitSubtask" :chosen-task="chosenTask"/>
@@ -64,5 +67,22 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+.subtasks-leave-active {
+    position: absolute;
+}
+.subtasks-enter-active,
+.subtasks-leave-active {
+    transition: all 0.5s ease;
+}
+
+.subtasks-enter-from {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.subtasks-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
 </style>

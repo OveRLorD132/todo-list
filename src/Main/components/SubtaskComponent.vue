@@ -1,15 +1,15 @@
 <template>
-    <div class="subtask" :style="subtaskStyle">
-        <div class="subtaskLeft">
-            <div class="completeButt" @click="subtaskComplete">
-                <img class="sComplete" src="/images/s-complete.png" />
-            </div>
-            <div class="subtaskText" :style="{textDecoration: subtask.isFinished ? 'line-through' : 'none'}">{{subtask.text}}</div>
+     <div class="subtask show-elem-enter show-elem-leave-to" :style="subtaskStyle">
+         <div class="subtaskLeft" key="left">
+             <div class="completeButt" @click="subtaskComplete">
+                 <img class="sComplete" src="/images/s-complete.png" />
+           </div>
+           <div class="subtaskText" :style="{textDecoration: subtask.isFinished ? 'line-through' : 'none'}">{{subtask.text}}</div>
         </div>
-        <div class="subtaskDelete" @click="subtaskDelete">
+        <div class="subtaskDelete" key="right" @click="subtaskDelete">
             <img class="sDelete" src="/images/s-delete.png"/>
         </div>
-        </div>
+    </div>
 </template>
 
 <script>
@@ -49,5 +49,4 @@ export default {
 </script>
 
 <style>
-
 </style>
