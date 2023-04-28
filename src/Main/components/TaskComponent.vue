@@ -83,7 +83,7 @@ export default {
             console.log(this.isDisabled);
             if(this.isDisabled) return;
             this.isDisabled = true;
-            setTimeout(() => {console.log(this.isDisabled)}, 1000);
+            //setTimeout(() => {console.log(this.isDisabled)}, 1000);
             let res = await task.finishTask();
             if(res === 404) this.$emit('task-error', {operation: 'finishing', src: "task", code: res})
             if(res === "Success")this.$emit('toggle-finishing', {task: task, index: index});

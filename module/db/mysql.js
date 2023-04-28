@@ -173,6 +173,14 @@ class Database {
             })
         })
     }
+    async finishSubtasks(task_id, bool) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`UPDATE subtasks SET isFinished = ? WHERE task_id = ?`, [bool, task_id], (err) => {
+                if(err) reject(err);
+                resolve();
+            })
+        })
+    }
 }
 
 

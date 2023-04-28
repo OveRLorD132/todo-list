@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 let authRoot = require('./routes/auth');
 let mainRouter = require('./routes/main');
 let tasksRoute = require('./routes/tasks-handling');
+let setupRoute = require('./routes/setup-data');
 var app = express();
 
 let {sessionMiddleware} = require('./module/middlewares/express-middlewares');
@@ -32,6 +33,7 @@ app.use('/users', usersRouter);
 app.use(mainRouter);
 app.use(authRoot);
 app.use(tasksRoute);
+app.use(setupRoute);
 
 
 

@@ -19,5 +19,4 @@ passport.deserializeUser((user, done) => {
     done(0, user);
 });
 
-console.log(passport);
 module.exports = passport;

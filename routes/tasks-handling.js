@@ -52,14 +52,21 @@ router.patch('/tasks/update/type', (req, res) => {
     });
 });
 
-router.patch('/tasks/finished/task', (req, res) => {
-    database.setFinished(req.body.task_id, req.body.isFinished).then(() => {
+router.patch('/tasks/finished/task', async (req, res) => {
+    try {
+        await database.setFinished(req.body.task_id, req.body.isFinished);
+        await database.finishSubtasks(req.body.task_id, req.body.isFinished);
         res.send('Success');
-    }).catch((err) => {
-        console.log(err);
+    } catch(err) {
         res.status(404);
-        res.send('Error.');
-    });
+    }
+    // database.setFinished(req.body.task_id, req.body.isFinished).then(() => {
+    //     res.send('Success');
+    // }).catch((err) => {
+    //     console.log(err);
+    //     res.status(404);
+    //     res.send('Error.');
+    // });
 });
 
 router.patch('/tasks/completed/subtask', async(req, res) => {

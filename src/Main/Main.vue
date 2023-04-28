@@ -40,9 +40,9 @@
                 </div>
             </div>
             <transition-group name="tasks-show">
-                <div v-if="finishedTasksIsVisible">
+                <div class="finishedTasksContainer" v-if="finishedTasksIsVisible">
                     <task-component v-for="(task, index) in finishedTasks" :key="task.task_id" :task="task" @click="showInfo(task)"
-                        classProp="task" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
+                        classProp="finishedTask" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
                         @important="toImportant" :chosen-task="chosenTask"
                         @subtask-delete="subtaskDelete" @task-error="errorHandling" 
                     />
@@ -232,6 +232,14 @@ export default {
 </script>
 
 <style>
+.finishedTasksContainer {
+    margin-bottom: 20px;
+}
+
+#tasksContainer {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
 .tasks-show-enter-active {
     transition: all 0.5s ease-out;
 }

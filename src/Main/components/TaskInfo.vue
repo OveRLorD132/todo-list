@@ -18,13 +18,16 @@
                 </template>
             </div>
             <subtask-input @new-subtask="emitSubtask" :chosen-task="chosenTask"/>
+        </div>
+        <div id="buttContainer">
             <div id="noteCont">
+                <div id="noteLabel">Note:</div>
                 <form @submit.prevent="submitNote">
                     <input id="noteInput" type="text" placeholder="Enter your note..." v-model="newNote">
                 </form>
             </div>
+            <button id="deleteTaskButt" @click="taskDelete">Delete</button>
         </div>
-        <div id="buttContainer"><button id="deleteTaskButt" @click="taskDelete">Delete</button></div>
     </div>
         
 </template>
@@ -82,8 +85,11 @@ export default {
         uploadNote(event) {
             event.preventDefault();
             if(this.newNote === this.chosenTask.note) return;
-            this.chosenTask.setNote(this.newNote, "leave");
+            this.chosenTask.setNote(this.newNote);
             event.returnValue = "";
+        },
+        submitNote() {
+            this.chosenTask.setNote(this.newNote);
         }
     }, 
     watch: {
@@ -111,7 +117,21 @@ export default {
     opacity: 0;
     transform: translateX(20px);
 }
-#noteInput {
-    background-color: #F9F9F9;
+
+#noteCont {
+    text-align: left;
+    margin-bottom: 15px;
+    margin-right: 10px;
 }
+
+#noteLabel {
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+#taskInfContainer {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
 </style>

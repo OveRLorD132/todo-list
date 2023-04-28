@@ -19,8 +19,12 @@ class Task {
         try {
             await axios.patch('/tasks/finished/task', {task_id: this.task_id, isFinished: !this.isFinished});
             this.isFinished = !this.isFinished;
+            for(let subtask of this.subtasks) {
+                subtask.isFinished = this.isFinished;
+            }
             return "Success";
         } catch(err) {
+            console.log(err);
             return 404;
         }
     }
@@ -38,9 +42,8 @@ class Task {
     restorePic() {
         if(this.type !== "Important") this.taskPic = '/images/imp_not_chosen.png';
     }
-    setNote(newNote, status) {
+    setNote(newNote) {
         if(newNote === this.note) return;
-        if(status && !newNote) return;
         this.note = newNote;
         this.uploadNote(this.note);
     }

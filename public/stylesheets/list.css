@@ -16,8 +16,8 @@
     flex-direction: column;
     justify-content: space-between;
     background-color: #ffffff;
-    min-width: 250px;
-    max-width: 250px;
+    min-width: 300px;
+    max-width: 300px;
 }
 
 #searchCont {
@@ -200,20 +200,40 @@
 }
 
 .task {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    word-break: break-all;
     flex-shrink: 0;
     border-radius: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 45px;
+    min-height: 45px;
     margin-top: 20px;
     padding-left: 20px;
     padding-right: 20px;
     background-color: #ffffff;
 }
 
+.finishedTask {
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 45px;
+    margin-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #E7E7E7;
+    word-break: break-all;
+}
 
 .taskInf {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    word-break: break-all;
     border-radius: 5px;
     padding-left: 5px;
     padding-right: 5px;
@@ -221,7 +241,7 @@
     border-width: 2px;
     border-color: #BEC0C2;
     width: calc(100% - 15px);
-    height: 40px;
+    min-height: 30px;
     align-items: center;
     display: flex;
     background-color: #F9F9F9;
@@ -275,11 +295,14 @@
 }
 
 .subtask {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    word-break: break-all;
     padding-left: 5px;
     border-radius: 5px;
     margin-right: 30px;
     margin-left: 5px;
-    height: 35px;
+    min-height: 25px;
     margin-top: 5px;
     width: calc(100% - 10px);
     display: flex;

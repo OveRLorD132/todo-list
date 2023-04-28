@@ -28,21 +28,18 @@ function registration(req) {
 }
 
 function logIn(username, password, done) {
-    console.log(username);
     database.getByUsername(username)
         .then((user) => {
             bcrypt.compare(password, user.password, (err, res) => {
-                console.log(res);
                 if(err) return done(err);
-                if(!res) return done(0, false);
+                if(!res) return done(0, false, {message: 'Incorrect password.'});
                 delete user.password;
-                console.log(user);
                 return done(0, user);
             });
         })
         .catch(err => {
             console.log(err);
-            return done(0, false);
+            return done(0, false, {message: "This user doesn't exist."});
         });
 }
 
