@@ -12,6 +12,7 @@ let mainRouter = require('./routes/main');
 let tasksRoute = require('./routes/tasks-handling');
 let setupRoute = require('./routes/setup-data');
 let profileRoute = require('./routes/profile');
+let passChangeRoute = require('./routes/password-change');
 var app = express();
 
 let {sessionMiddleware} = require('./module/middlewares/express-middlewares');
@@ -36,6 +37,7 @@ app.use(authRoot);
 app.use(tasksRoute);
 app.use(setupRoute);
 app.use(profileRoute);
+app.use(passChangeRoute);
 
 
 

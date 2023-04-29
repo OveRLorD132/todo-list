@@ -2,6 +2,8 @@ let express = require('express');
 let router = express.Router();
 let path = require('path');
 
+let { validateEmail, validateUsername} = require('../module/validation/form-data-validation');
+
 let Database = require('../module/db/mysql');
 let database = new Database();
 
@@ -43,26 +45,3 @@ router.post('/profile/change/e-mail', async(req, res) => {
 })
 
 module.exports = router;
-
-function validateUsername(username, req) {
-    if(username.length < 8) {
-        req.flash('error', 'Username must be at least 8 symbols.');
-        console.log(req);
-        return false;
-    } else if(username.length > 20) {
-        req.flash('error', 'Username is too long.');
-        return false;
-    }
-    return true;
-}
-
-function validateEmail(email, req) {
-    if(email.length > 200) {
-        req.flash('error', `E-mail couldn't be so long.`);
-        return false; 
-    } else if(!/.+@.+/.test(email)) {
-        req.flash('error', `Incorrect format.`);
-        return false;
-    }
-    return true;
-}

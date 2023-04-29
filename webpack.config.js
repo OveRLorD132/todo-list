@@ -3,7 +3,7 @@ let path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/Profile/profile.js',
+    entry: './src/PasswordChange/password-change.js',
     cache: {
         type: 'filesystem',
         allowCollectingMemory: true,
@@ -14,8 +14,8 @@ module.exports = {
         splitChunks: false,
     },
     output: {
-        path: path.resolve(__dirname, 'public', 'javascripts', 'Profile'),
-        filename: 'profile.js',
+        path: path.resolve(__dirname, 'public', 'javascripts', 'PasswordChange'),
+        filename: 'password-change.js',
         clean: true
     },
     module: {

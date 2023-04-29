@@ -38,6 +38,15 @@ class Database {
             });
         });
     }
+    async getPropertyById(property, id) {
+        console.log(arguments);
+        return new Promise((resolve, reject) => {
+            this.db.query(`SELECT \`${property}\` FROM users WHERE id = ?`, [id], (err, res) => {
+                if(err) reject(err);
+                resolve(res[0]);
+            })
+        })
+    }
     async changeUserProp(property, newValue, id) {
         console.log(property)
         return new Promise((resolve, reject) => {
