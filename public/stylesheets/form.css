@@ -1,0 +1,23 @@
+input[type="password"],
+input[type="text"] {
+  font-family: 'ProximaNova-Light';
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 10px;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  width: 250px;
+  height: 44px;
+}
+
+input[type="submit"] {
+  font-family: 'ProximaNova-Light';
+  font-size: 1.3rem;
+  border: none;
+  background-color: CACACA;
+  margin-top: 10px;
+  border-radius: 10px;
+  height: 40px;
+  cursor: pointer;
+}

@@ -19,8 +19,10 @@ class Task {
         try {
             await axios.patch('/tasks/finished/task', {task_id: this.task_id, isFinished: !this.isFinished});
             this.isFinished = !this.isFinished;
-            for(let subtask of this.subtasks) {
-                subtask.isFinished = this.isFinished;
+            if(this.subtasks) {
+                for(let subtask of this.subtasks) {
+                    subtask.isFinished = this.isFinished;
+                }
             }
             return "Success";
         } catch(err) {
@@ -33,6 +35,8 @@ class Task {
             let res = await axios.delete('/tasks/delete/task', {data: this});
             return res.data;
         } catch(err) {
+            console.log(err);
+            console.log(this.subtasks);
             return err.response.status
         }
     }

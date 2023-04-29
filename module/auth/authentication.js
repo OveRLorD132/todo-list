@@ -6,22 +6,19 @@ let database = new Database();
 function registration(req) {
     return new Promise((resolve, reject) => {
         let user = req.body;
-        if(req.body.username === '' || req.body.password === "" || req.body[`e-mail`] === "") reject(new Error('Forms cannot be empty!'))
         bcrypt.genSalt(11, (err, salt) => {
             if(err) reject(err);
             bcrypt.hash(user.password, salt, (err, hash) => {
                 if(err) reject(err);
-                let newUser = [user.username, user[`e-mail`], hash];
-                database.addUser(newUser)
-                    .then(() => {
-                        database.getByUsername(user.username).then((result) => {
-                            delete result.password;
-                            resolve(result);
-                        })
+                let newUser = [user.username, user.email, hash];
+                database.addUser(newUser).then(() => {
+                    database.getByUsername(user.username).then((result) => {
+                        delete result.password;
+                        resolve(result);
                     })
-                    .catch((err) => {
-                        reject(err);
-                    })
+                }).catch((err) => {
+                    reject(err);
+                })
             });
         })
     });

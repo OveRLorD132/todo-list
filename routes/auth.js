@@ -18,19 +18,16 @@ router.post('/login', passport.authenticate('local', {
 }), (req, res) => {});
 
 router.post('/registration', (req, res, next) => {
-    console.log(req);
-    registration(req)
-        .then((user) => {
-            console.log(user);
-            req.logIn(user, (err) => {
-                if(err) return next(err);
-                return res.render('Login');
-            });
-        })
-        .catch((err) => {
-            console.log(err);
-            return res.render('Registration');
+    registration(req).then((user) => {
+        req.logIn(user, (err) => {
+            if(err) return next(err);
+            res.send('Success');
         });
+    }).catch((err) => {
+        if(/username/.test(err)) req.flash('error', 'This username is already in use.')
+        else req.flash('error', 'This email is already in use.');
+        res.send('Failure');
+    });
 });
 
 module.exports = router;
