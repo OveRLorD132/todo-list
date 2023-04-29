@@ -38,6 +38,15 @@ class Database {
             });
         });
     }
+    async changeUserProp(property, newValue, id) {
+        console.log(property)
+        return new Promise((resolve, reject) => {
+            this.db.query(`UPDATE users SET \`${property}\` = ? WHERE id = ?`, [newValue, id], (err) => {
+                if(err) reject(err);
+                resolve();
+            })
+        })
+    }
     async addToList(id, task, type) {
         return new Promise((resolve, reject) => {
             this.db.query(`INSERT INTO tasks (id, text, type) VALUES (?, ?, ?)`, [id, task, type], async (err) => {

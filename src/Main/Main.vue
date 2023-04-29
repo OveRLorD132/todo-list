@@ -7,7 +7,12 @@
                 <input type="text" name="search" v-model="searchTasks" id="search">
             </form>
         </div>
-        <div id="profileLinks"><a href="/profile" name="Profile">My Profile</a></div>
+        <div id="profileLinks">
+            <div class="logoutLink">
+                <a href="/logout" name="Log Out">Log Out</a>
+            </div>
+            <a href="/profile" name="Profile">My Profile</a>
+        </div>
     </div>
     <div id="container">
         <panel @toggle-button="toggleButton" 
@@ -232,6 +237,15 @@ export default {
 </script>
 
 <style>
+#profileLinks {
+    display: flex;
+    flex-direction: row;
+}
+
+.logoutLink {
+    margin-right: 10px;
+}
+
 .finishedTasksContainer {
     margin-bottom: 20px;
 }

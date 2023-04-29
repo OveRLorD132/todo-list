@@ -1,8 +1,5 @@
 let express = require('express');
-let Database = require('../module/db/mysql');
-
 let router = express.Router();
-let database = new Database();
 
 router.get('/login/errors', async(req, res) => {
     res.send(req.flash());

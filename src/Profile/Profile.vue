@@ -1,0 +1,162 @@
+<template>
+    <FormError></FormError>
+    <LineComponent @user-profile="setProfile"></LineComponent>
+    <div id="blocksContainer">
+        <div id="firstBlock">
+            <div id="profilePicContainer">
+                <img id="profilePic" :src="generalProfilePic" :alt="profilePic">
+                <div id="picLabel">
+                    Here's your profile pic. You can upload another <a class="Link" href="/profile/upload" name="Upload">here.</a>
+                </div>
+            </div>
+            <hr class="separator">
+            <InfField id="usernameContainer" :property="{name: `username`, value: userProfile.username}"></InfField>
+        </div>
+        <div id="secondBlock">
+            <InfField id="emailContainer" :property="{name: `e-mail`, value: userProfile[`e-mail`]}"></InfField>
+            <hr class="separator">
+            <div id="idContainer">
+                <div id="idInfo">Your ID: {{ userProfile.id }}</div>
+                <div id="idLabel"><h4 class="labelHeader">Your id is unique. It cannot be changed.</h4></div>
+            </div>
+            <hr class="separator">
+            <div id="passwordContainer">
+                <div>Password: </div>
+                <div id="passwordLabel"><h4 class="labelHeader">Your password is hidden. But you can change it 
+                    <a class="Link" href="/password-change">here.</a>
+                </h4></div>
+            </div>
+            <hr class="separator">
+        </div>
+    </div>
+</template>
+
+<script>
+import InfField from './components/InfField.vue';
+import FormError from '../components/FormError.vue';
+import LineComponent from '../components/LineComponent.vue';
+export default {
+    components: {
+        LineComponent,
+        FormError,
+        InfField,
+    },
+    data() {
+        return {
+            profilePic: "",
+            generalProfilePic: "/images/profile.png",
+            userProfile: "",
+        }
+    },
+    methods: {
+        setProfile(obj) {
+            this.userProfile = obj.user;
+            this.username = obj.user.username;
+            console.log(obj.user);
+        },
+    }
+}
+</script>
+
+<style>
+.separator {
+    margin: 0;
+    padding: 0;
+}
+
+#usernameContainer {
+    margin-left: 30px;
+    height: calc(300px - 230px);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+}
+
+#emailContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 30px;
+    margin-right: 30px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+#idContainer {
+    margin-left: 30px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row;
+
+}
+
+#passwordContainer {
+    display: flex;
+    flex-direction: row;
+    margin-left: 30px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#idLabel {
+    margin-left: 10px;
+}
+
+.labelHeader {
+    margin: 0;
+    padding: 0;
+}
+
+#passwordLabel {
+    margin-left: 10px;
+}
+
+.Link {
+    color: #2C40C2;
+}
+
+#profilePicContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+#profilePic {
+    width: 230px;
+    height: 230px;
+}
+
+#picLabel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 20px;
+}
+
+#blocksContainer {
+    padding-left: 150px;
+    padding-right: 150px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: calc(100vh - 45px);
+}
+
+#firstBlock {
+    width: 100%;
+    height: 300px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    margin-top: 30px;
+}
+
+#secondBlock {
+    margin-top: 40px;
+    width: 100%;
+    background-color: #ffffff;
+    height: 300px;
+    border-radius: 10px;
+}
+
+</style>

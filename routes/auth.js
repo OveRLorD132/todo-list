@@ -11,6 +11,17 @@ router.get('/registration', (req, res) => {
     res.render('Registration');
 });
 
+router.get('/logout', (req, res) => {
+    console.log(req);
+    if(req.session.passport && req.session.passport.user) {
+        req.logOut((err) => {
+            if(err) console.log(err);
+        })
+    }
+    res.redirect('/login');
+
+})
+
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
@@ -26,6 +37,7 @@ router.post('/registration', (req, res, next) => {
     }).catch((err) => {
         if(/username/.test(err)) req.flash('error', 'This username is already in use.')
         else req.flash('error', 'This email is already in use.');
+        console.log()
         res.send('Failure');
     });
 });

@@ -11,6 +11,7 @@ let authRoot = require('./routes/auth');
 let mainRouter = require('./routes/main');
 let tasksRoute = require('./routes/tasks-handling');
 let setupRoute = require('./routes/setup-data');
+let profileRoute = require('./routes/profile');
 var app = express();
 
 let {sessionMiddleware} = require('./module/middlewares/express-middlewares');
@@ -34,6 +35,7 @@ app.use(mainRouter);
 app.use(authRoot);
 app.use(tasksRoute);
 app.use(setupRoute);
+app.use(profileRoute);
 
 
 
@@ -45,6 +47,8 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
+  console.log(req);
+  console.log(err);
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
