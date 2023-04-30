@@ -29,6 +29,10 @@ export default {
             console.log(this.userProfile);
             this.$emit('user-profile', {user: this.userProfile});
         })
+        axios.get('/user/image').then((bool) => {
+          if(bool.data) this.profilePicSrc = `/images/profile/${this.userProfile.username}.png`;
+          this.$emit('profile-image', {hasImg: bool.data});
+        })
     }
 }
 </script>

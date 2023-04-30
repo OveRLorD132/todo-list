@@ -1,12 +1,13 @@
 <template>
+    <ImageUpload :upload-is-visible="uploadIsVisible"></ImageUpload>
     <FormError></FormError>
-    <LineComponent @user-profile="setProfile"></LineComponent>
+    <LineComponent @user-profile="setProfile" @profile-image="setProfileImage"></LineComponent>
     <div id="blocksContainer">
         <div id="firstBlock">
             <div id="profilePicContainer">
                 <img id="profilePic" :src="generalProfilePic" :alt="profilePic">
                 <div id="picLabel">
-                    Here's your profile pic. You can upload another <a class="Link" href="/profile/upload" name="Upload">here.</a>
+                    Here's your profile pic. You can upload another <button @click="showUpload">Upload</button>
                 </div>
             </div>
             <hr class="separator">
@@ -32,6 +33,7 @@
 </template>
 
 <script>
+import ImageUpload from './components/ImageUpload.vue';
 import InfField from './components/InfField.vue';
 import FormError from '../components/FormError.vue';
 import LineComponent from '../components/LineComponent.vue';
@@ -40,12 +42,14 @@ export default {
         LineComponent,
         FormError,
         InfField,
+        ImageUpload,
     },
     data() {
         return {
             profilePic: "",
-            generalProfilePic: "/images/profile.png",
+            generalProfilePic: "",
             userProfile: "",
+            uploadIsVisible: false,
         }
     },
     methods: {
@@ -54,6 +58,13 @@ export default {
             this.username = obj.user.username;
             console.log(obj.user);
         },
+        showUpload() {
+            this.uploadIsVisible = true;
+        },
+        setProfileImage(obj) {
+            if(obj.hasImg) this.generalProfilePic = `/images/profile/${this.userProfile.username}.png`;
+            else this.generalProfilePic = `/images/profile.png`;
+        }
     }
 }
 </script>

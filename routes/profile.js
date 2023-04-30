@@ -1,6 +1,9 @@
 let express = require('express');
 let router = express.Router();
 let path = require('path');
+let fs = require('fs');
+
+let formidable = require('formidable');
 
 let { validateEmail, validateUsername} = require('../module/validation/form-data-validation');
 
@@ -42,6 +45,21 @@ router.post('/profile/change/e-mail', async(req, res) => {
             res.redirect('/profile');
         }
     } else res.redirect('/profile');
+})
+
+router.post('/profile/change/picture', async(req, res) => {
+    let form = formidable({
+        multiples: true,
+        maxFileSize: 80 * 1024 * 1024,
+        uploadDir: '../public/images/profile',
+        filename: req.session.passport.user.username,
+    });
+    form.parse(req, async(err, fields, files) => {
+        if(err) console.log(err);
+        let imgBuffer = Buffer.from(fields.image.split(',')[1],'base64'); 
+        fs.writeFileSync(`./public/images/profile/${req.session.passport.user.username}.png`, imgBuffer);
+        res.send('Upload successful');
+    })
 })
 
 module.exports = router;
