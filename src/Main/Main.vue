@@ -1,19 +1,12 @@
 <template>
     <error-component :error="error" @hide-error-message="hideErrorMessage"></error-component>
-    <div id="line">
-        <div id="mainLink"><a href="/tasks" name="Main Page">Main Page</a></div>
+    <LineComponent>
         <div id="searchCont">
             <form @submit.prevent>
                 <input type="text" name="search" v-model="searchTasks" id="search">
             </form>
         </div>
-        <div id="profileLinks">
-            <div class="logoutLink">
-                <a href="/logout" name="Log Out">Log Out</a>
-            </div>
-            <a href="/profile" name="Profile">My Profile</a>
-        </div>
-    </div>
+    </LineComponent>
     <div id="container">
         <panel @toggle-button="toggleButton" 
             :curr-channel="currChannel" 
@@ -66,6 +59,7 @@
 </template>
 
 <script>
+import LineComponent from '../components/LineComponent.vue';
 import ErrorComponent from './components/ErrorComponent.vue';
 import Panel from './components/Panel.vue';
 import FormCompoment from './components/FormCompoment.vue';
@@ -77,6 +71,7 @@ import Task from './modules/Task';
 console.log(Task);
 export default {
     components: {
+        LineComponent,
         ErrorComponent,
         Panel,
         FormCompoment,

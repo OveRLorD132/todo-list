@@ -1,5 +1,5 @@
 <template>
-    <ImageUpload :upload-is-visible="uploadIsVisible"></ImageUpload>
+    <ImageUpload :upload-is-visible="uploadIsVisible" @close-upload="onCloseUpload"></ImageUpload>
     <FormError></FormError>
     <LineComponent @user-profile="setProfile" @profile-image="setProfileImage"></LineComponent>
     <div id="blocksContainer">
@@ -7,7 +7,7 @@
             <div id="profilePicContainer">
                 <img id="profilePic" :src="generalProfilePic" :alt="profilePic">
                 <div id="picLabel">
-                    Here's your profile pic. You can upload another <button @click="showUpload">Upload</button>
+                    Here's your profile pic. You can upload another <button class="uploadButt" @click="showUpload">Upload</button>
                 </div>
             </div>
             <hr class="separator">
@@ -27,7 +27,6 @@
                     <a class="Link" href="/password-change">here.</a>
                 </h4></div>
             </div>
-            <hr class="separator">
         </div>
     </div>
 </template>
@@ -64,12 +63,26 @@ export default {
         setProfileImage(obj) {
             if(obj.hasImg) this.generalProfilePic = `/images/profile/${this.userProfile.username}.png`;
             else this.generalProfilePic = `/images/profile.png`;
+        },
+        onCloseUpload() {
+            this.uploadIsVisible = false;
         }
     }
 }
 </script>
 
 <style>
+.uploadButt {
+    cursor: pointer;
+    margin-left: 10px;
+    font-family: 'ProximaNova-Light';
+    width: 65px;
+    height: 25px;
+    border: none;
+    border-radius: 5px;
+    background-color: #D7F7F7;
+}
+
 .separator {
     margin: 0;
     padding: 0;
@@ -90,7 +103,7 @@ export default {
     align-items: center;
     margin-left: 30px;
     margin-right: 30px;
-    margin-top: 30px;
+    margin-top: 15px;
     margin-bottom: 15px;
 }
 
@@ -134,13 +147,18 @@ export default {
 }
 
 #profilePic {
+    margin-left: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 50%;
     width: 230px;
     height: 230px;
 }
 
 #picLabel {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     justify-content: center;
     margin-left: 20px;
 }
@@ -156,7 +174,6 @@ export default {
 
 #firstBlock {
     width: 100%;
-    height: 300px;
     border-radius: 10px;
     background-color: #ffffff;
     margin-top: 30px;
@@ -166,7 +183,6 @@ export default {
     margin-top: 40px;
     width: 100%;
     background-color: #ffffff;
-    height: 300px;
     border-radius: 10px;
 }
 

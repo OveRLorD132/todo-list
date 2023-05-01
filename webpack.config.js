@@ -3,7 +3,7 @@ let path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/Profile/profile.js',
+    entry: './src/Profile/Profile.js',
     cache: {
         type: 'filesystem',
         allowCollectingMemory: true,
