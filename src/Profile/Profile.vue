@@ -1,6 +1,6 @@
 <template>
     <ImageUpload :upload-is-visible="uploadIsVisible" @close-upload="onCloseUpload"></ImageUpload>
-    <FormError></FormError>
+    <FlashMessages></FlashMessages>
     <LineComponent @user-profile="setProfile" @profile-image="setProfileImage"></LineComponent>
     <div id="blocksContainer">
         <div id="firstBlock">
@@ -11,22 +11,26 @@
                 </div>
             </div>
             <hr class="separator">
-            <InfField id="usernameContainer" :property="{name: `username`, value: userProfile.username}"></InfField>
+            <InfField id="usernameContainer" class="infField" :property="{name: `username`, value: userProfile.username}"></InfField>
         </div>
         <div id="secondBlock">
-            <InfField id="emailContainer" :property="{name: `e-mail`, value: userProfile[`e-mail`]}"></InfField>
+            <InfField id="emailContainer" class="infField" :property="{name: `e-mail`, value: userProfile[`e-mail`]}"></InfField>
             <hr class="separator">
-            <div id="idContainer">
+            <div id="idContainer" class="infField">
                 <div id="idInfo">Your ID: {{ userProfile.id }}</div>
                 <div id="idLabel"><h4 class="labelHeader">Your id is unique. It cannot be changed.</h4></div>
             </div>
             <hr class="separator">
-            <div id="passwordContainer">
+            <div id="passwordContainer" class="infField">
                 <div>Password: </div>
                 <div id="passwordLabel"><h4 class="labelHeader">Your password is hidden. But you can change it 
                     <a class="Link" href="/password-change">here.</a>
                 </h4></div>
             </div>
+            <hr class="separator">
+            <InfField class="infField" id="countryContainer" :property="{name:'country', value: userProfile.country}"></InfField>
+            <hr class="separator">
+            <InfField class="infField" :property="{name: 'telephone', value: userProfile.telephone}"></InfField>
         </div>
     </div>
 </template>
@@ -34,12 +38,12 @@
 <script>
 import ImageUpload from './components/ImageUpload.vue';
 import InfField from './components/InfField.vue';
-import FormError from '../components/FormError.vue';
+import FlashMessages from '../components/FlashMessages.vue';
 import LineComponent from '../components/LineComponent.vue';
 export default {
     components: {
         LineComponent,
-        FormError,
+        FlashMessages,
         InfField,
         ImageUpload,
     },
@@ -72,6 +76,15 @@ export default {
 </script>
 
 <style>
+.infField {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    margin-left: 30px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 .uploadButt {
     cursor: pointer;
     margin-left: 10px;
@@ -84,44 +97,9 @@ export default {
 }
 
 .separator {
+    color: #424242;
     margin: 0;
     padding: 0;
-}
-
-#usernameContainer {
-    margin-left: 30px;
-    height: calc(300px - 230px);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: left;
-}
-
-#emailContainer {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: 30px;
-    margin-right: 30px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
-#idContainer {
-    margin-left: 30px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: row;
-
-}
-
-#passwordContainer {
-    display: flex;
-    flex-direction: row;
-    margin-left: 30px;
-    margin-top: 15px;
-    margin-bottom: 15px;
 }
 
 #idLabel {

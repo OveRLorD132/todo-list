@@ -1,3 +1,5 @@
+let phoneRegexp = /^[\+]?[\(]?[0-9]{3}[\)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im
+
 function passwordValidation(password, req) {
     if(password.length < 8) {
         req.flash('error', 'Password must be at least 8 symbols.');
@@ -32,4 +34,20 @@ function validateEmail(email, req) {
     return true;
 }
 
-module.exports = { passwordValidation, validateUsername, validateEmail};
+function validateCountry(country, req) {
+    if(country.length > 40) {
+        req.flash('error', 'Name too long.');
+        return false;
+    } 
+    return true;
+}
+
+function validateTelephone(telephone, req) {
+    if(!phoneRegexp.test(telephone)) {
+        req.flash('error', 'Invalid format.');
+        return false;
+    }
+    return true;
+}
+
+module.exports = { passwordValidation, validateUsername, validateEmail, validateTelephone, validateCountry};

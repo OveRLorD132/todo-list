@@ -1,27 +1,39 @@
 <template>
+  <Transition name="show-links">
+    <div class="linksCont" v-if="linksAreVisible">
+      <div class="links">
+        <img class="linksPic" :src="profilePicSrc">
+        <div class="rightInfo">
+          <div><h2 class="usernameLabel">{{ userProfile.username }}</h2></div>
+          <div id="infoCont">
+            <div>
+              <div>E-mail:</div>
+              <div id="emailInfo">{{ userProfile[`e-mail`] }}</div>
+            </div>
+            <div id="linksCont">
+              <a href="/profile" name="My Profile" class="profileLinks">My Profile</a>
+              <a href="/logout" name="Log Out" class="profileLinks">Log Out</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Transition>
   <div id="line">
     <div id="mainLink"><a href="/tasks" name="Main Page">Main Page</a></div>
     <slot></slot>
-    <div id="profileLinks">
+    <div ref="links" id="profileLinks">
       <template v-if="userProfile">
         <div class="profileCont">
-          <img class="profileImg" :src="profilePicSrc" @click="showLinks">
-          <Transition name="show-links">
-            <div class="links" v-if="linksAreVisible">
-              <a href="/profile" name="My Profile" class="profileLinks">My Profile</a>
-              <hr class="separator">
-              <a href="/logout" name="Log Out" class="profileLinks">Log Out</a>
-            </div>
-          </Transition>
-
+          <img class="profileImg" id="linePic" :src="profilePicSrc" @click="showLinks">
         </div>
-
       </template>
       <template v-if="!userProfile">
         <a href="/login" name="Login" class="loginLink">Log In</a>
         <a href="/registration" name="Registration">Registration</a>
       </template>
     </div>
+
   </div>
 </template>
 
@@ -49,17 +61,65 @@ export default {
             //this.imgSrc = `/images/profile/${this.userProfile.username}.png`
         })
         })
-
+        document.addEventListener('click', this.hideLinks);
     },
     methods: {
       showLinks() {
         this.linksAreVisible = !this.linksAreVisible;
+      },
+      hideLinks(event) {
+        if(this.linksAreVisible) {
+          let element = document.getElementsByClassName('linksCont')[0];
+          console.log(event)
+          if(!element.contains(event.target) && event.target !== document.getElementById('linePic')) {
+            this.linksAreVisible = false;
+          }
+        }
+
       }
     }
 }
 </script>
 
 <style scoped>
+#infoCont {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#linksCont {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.usernameLabel {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+#emailInfo {
+  margin-top: 5px;
+}
+
+.rightInfo {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.linksPic {
+  margin: 20px 20px 20px 20px;
+  border-radius: 50%;
+  width: 160px;
+  height: 160px;
+}
+
 .separator {
   margin: 0;
   margin-left: -10px !important;
@@ -67,25 +127,28 @@ export default {
 }
 
 .profileLinks {
-  margin: 10px 10px 10px 10px;
-  font-size: large;
+  margin-top: 5px;
+  margin-bottom: 5px;
   color: #2C40C2;
 }
 
 .links {
-  border: 0.5px solid;
-  border-top: none;
-  border-right: none;
-  text-align: left;
-  width: 100%;
-  position: fixed;
-  background-color: #ffffff;
+  width: 300px;
+  height: 200px;
+  box-shadow: -8px 9px 19px -10px rgba(0,0,0,0.54);
+  padding-right: 60px;
   display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding-left: 10px;
-  margin-top: 1px;
-  padding-right: 40px;
+  flex-direction: row;
+  background-color: #ffffff;
+}
+
+.linksCont {
+  margin-top: 45px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  position: fixed;
+
 }
 
 .profileImg {
@@ -114,7 +177,7 @@ export default {
 
 .show-links-enter-active, 
 .show-links-leave-active {
-  transition: all 0.5s ease;
+  transition: all 0.1s ease;
 }
 
 .show-links-leave-to,

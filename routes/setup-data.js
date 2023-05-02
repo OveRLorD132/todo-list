@@ -3,8 +3,8 @@ let router = express.Router();
 
 let fs = require('fs');
 
-router.get('/login/errors', async(req, res) => {
-    res.send(req.flash());
+router.get('/flash-messages', async(req, res) => {
+    res.json(req.flash());
 })
 
 router.get('/current/user/profile', async(req, res) => {
@@ -17,7 +17,6 @@ router.get('/user/image', (req, res) => {
     let path = `./public/images/profile/${req.session.passport.user.username}.png`;
     console.log(path);
     fs.access(path, (err) => {
-        console.log(err);
         if(err) res.send(false);
         else res.send(true)
     })
