@@ -8,13 +8,14 @@ router.get('/flash-messages', async(req, res) => {
 })
 
 router.get('/current/user/profile', async(req, res) => {
-    if(req.session.passport) res.send(req.session.passport.user);
+    if(req.user) res.send(req.user);
     else res.send('User not logged in');
+    console.log(req.user);
 })
 
 router.get('/user/image', (req, res) => {
     console.log(req);
-    let path = `./public/images/profile/${req.session.passport.user.username}.png`;
+    let path = `./public/images/profile/${req.user.username}.png`;
     console.log(path);
     fs.access(path, (err) => {
         if(err) res.send(false);

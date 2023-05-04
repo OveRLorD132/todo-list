@@ -11,6 +11,7 @@ router.get('/main', (req, res) => {
 });
 
 router.get('/tasks', authCheck, (req, res) => {
+    console.log(req);
     res.render('Main');
 });
 

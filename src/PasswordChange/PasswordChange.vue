@@ -1,6 +1,6 @@
 <template>
     <LineComponent @user-profile="setProfile"></LineComponent>
-    <FormError></FormError>
+    <FlashMessages></FlashMessages>
     <div id="mainContainer">
         <div id="formContainer">
             <div class="label"><h1>Password Change</h1></div>
@@ -14,12 +14,12 @@
 </template>
 
 <script>
-import FormError from '../components/FormError.vue';
+import FlashMessages from '../components/FlashMessages.vue';
 import LineComponent from '../components/LineComponent.vue';
 export default {
     components: {
         LineComponent,
-        FormError,
+        FlashMessages,
     },
     data() {
         return {

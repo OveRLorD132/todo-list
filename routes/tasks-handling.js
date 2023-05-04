@@ -3,16 +3,17 @@ let router = express.Router();
 
 let Database = require('../module/db/mysql');
 
+let Tasks = require('../module/Tasks');
+
 let database = new Database();
 
-router.get('/tasks/load/task', (req, res) => {
-    database.loadFromList(req.session.passport.user.id)
-        .then((tasks) => {
-            res.send(tasks);
-        })
-        .catch((err) => {
-            console.error(err);
-        });
+router.get('/tasks/load/task', async(req, res) => {
+    try {
+        let tasks = await Tasks.prototype.loadTasks(req.user.id);
+        res.send(tasks);
+    } catch(err) {
+        console.error(err);
+    }
 });
 
 router.get('/tasks/load/subtasks', async(req, res) => {
@@ -25,13 +26,12 @@ router.get('/tasks/load/subtasks', async(req, res) => {
     }
 });
 
-router.post('/tasks/new/task', (req, res) => {
-    database.addToList(req.session.passport.user.id, req.body.text, req.body.type).then((task) => {
-        res.send(task);
-    });
+router.post('/tasks/new/task', async(req, res) => {
+    let task = await Tasks.prototype.addTask(req.user.id, req.body.text, req.body.type);
+    res.send(task);
 });
 
-router.post('/tasks/new/subtask', async (req, res) => {
+router.post('/tasks/new/subtask', async(req, res) => {
     try {
         let subtask = await database.insertSubtask(req.body.task_id, req.body.subtask);
         //subtask.user_id = req.session.passport.user.id;
@@ -41,32 +41,30 @@ router.post('/tasks/new/subtask', async (req, res) => {
     }
 });
 
-router.patch('/tasks/update/type', (req, res) => {
-    console.log(req);
-    database.changeType(req.body.task_id, req.body.type,).then(() => {
-        res.send("Success");
-    }).catch((err) => {
-        console.log(err);
-        res.status(404);
-        res.send("Error");
-    });
-});
-
-router.patch('/tasks/finished/task', async (req, res) => {
+router.patch('/tasks/update/type', async(req, res) => {
     try {
-        await database.setFinished(req.body.task_id, req.body.isFinished);
-        await database.finishSubtasks(req.body.task_id, req.body.isFinished);
+        await Tasks.prototype.changeType(req.body.type, req.body.task_id);
         res.send('Success');
     } catch(err) {
-        res.status(404);
+        if(err.message === "Data missing.") res.status(404);
+        else {
+            console.error(err);
+            res.send(500);
+        }
     }
-    // database.setFinished(req.body.task_id, req.body.isFinished).then(() => {
-    //     res.send('Success');
-    // }).catch((err) => {
-    //     console.log(err);
-    //     res.status(404);
-    //     res.send('Error.');
-    // });
+});
+
+router.patch('/tasks/finished/task', async(req, res) => {
+    try {
+        await Tasks.prototype.finishTask(req.body.isFinished, req.body.task_id);
+        res.send('Success');
+    } catch(err) { 
+        if(err.message === "Data missing.") res.status(404);
+        else {
+            console.error(err)
+            res.status(500);
+        }
+    }
 });
 
 router.patch('/tasks/completed/subtask', async(req, res) => {
@@ -82,20 +80,27 @@ router.patch('/tasks/completed/subtask', async(req, res) => {
 
 router.patch('/tasks/upload/note', async(req, res) => {
     try {
-        await database.addNote(req.body.newNote, req.body.task_id);
+        await Tasks.prototype.setNote(req.body.newNote, req.body.task_id);
     } catch(err) {
-        console.log(err);
+        if(err.message === "Data missing.") res.status(404);
+        else {
+            console.error(err);
+            res.send(500);
+        }
     }
 })
 
-router.delete('/tasks/delete/task', (req, res) => {
-    database.deleteLine(req.body.task_id).then(() => {
-        console.log('Deleted');
-        res.end('Success');
-    }).catch(err => {
-        if(/Data missing\./.test(err)) res.status(404);
-        res.send(err);
-    });
+router.delete('/tasks/delete/task', async(req, res) => {
+    try {
+        await Tasks.prototype.deleteTask(req.body.task_id);
+        res.send("Success");
+    } catch(err) { 
+        if(err.message === "Data missing.") res.status(404);
+        else {
+            console.error(err);
+            res.status(500);
+        }
+    }
 });
 
 router.delete('/tasks/delete/subtask', async(req, res) => {

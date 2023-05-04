@@ -1,6 +1,6 @@
 <template>
   <line-component></line-component>
-  <FormError></FormError>
+  <FlashMessages></FlashMessages>
   <div id="formContainer">
     <div id="registrationLabel"><h1>Registration</h1></div>
     <form @submit.prevent="submitRegistration" id="registrationForm">
@@ -32,12 +32,12 @@
 
 <script>
 import axios from 'axios';
-import FormError from '../components/FormError.vue';
+import FlashMessages from '../components/FlashMessages.vue';
 import LineComponent from '../components/LineComponent.vue';
 export default {
     components: {
     LineComponent,
-    FormError,
+    FlashMessages,
 },
     data() {
         return {

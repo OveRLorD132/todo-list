@@ -1,5 +1,6 @@
 <template>
     <error-component :error="error" @hide-error-message="hideErrorMessage"></error-component>
+    <FlashMessages></FlashMessages>
     <LineComponent>
         <div id="searchCont">
             <form @submit.prevent>
@@ -59,6 +60,7 @@
 </template>
 
 <script>
+import FlashMessages from '../components/FlashMessages.vue';
 import LineComponent from '../components/LineComponent.vue';
 import ErrorComponent from './components/ErrorComponent.vue';
 import Panel from './components/Panel.vue';
@@ -77,6 +79,7 @@ export default {
         FormCompoment,
         TaskComponent,
         TaskInfo,
+        FlashMessages
     },
     props: {
         buttDisabled: Boolean,

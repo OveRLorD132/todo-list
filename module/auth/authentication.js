@@ -1,43 +1,38 @@
 let bcrypt = require('bcrypt');
 let Database = require('../db/mysql');
 
+let Password = require('../Password');
+
 let database = new Database();
 
-function registration(req) {
-    return new Promise((resolve, reject) => {
-        let user = req.body;
-        bcrypt.genSalt(11, (err, salt) => {
-            if(err) reject(err);
-            bcrypt.hash(user.password, salt, (err, hash) => {
-                if(err) reject(err);
-                let newUser = [user.username, user.email, hash];
-                database.addUser(newUser).then(() => {
-                    database.getByUsername(user.username).then((result) => {
-                        delete result.password;
-                        resolve(result);
-                    })
-                }).catch((err) => {
-                    reject(err);
-                })
-            });
-        })
+async function registration(user) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            user.password = await Password.prototype.hash(user.password);
+            await database.addUser(user);
+            resolve(database.selectLastInsert())
+        } catch(err) {
+            reject(err);
+        }
     });
 }
 
-function logIn(username, password, done) {
-    database.getByUsername(username)
-        .then((user) => {
-            bcrypt.compare(password, user.password, (err, res) => {
-                if(err) return done(err);
-                if(!res) return done(0, false, {message: 'Incorrect password.'});
+async function logIn(username, password, done) {
+    try {
+        let user = await database.getByUsername(username);
+        try {
+            let match = await Password.prototype.comparePassword(password, user.password);
+            if(!match) return done(0, false, {message: 'Incorrect password.'});
+            if(match){
                 delete user.password;
                 return done(0, user);
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            return done(0, false, {message: "This user doesn't exist."});
-        });
+            }
+        } catch(err) {
+            return done(err);
+        }
+    } catch(err) {
+        return done(0, false, {message: `This user doesn't exist`});
+    }
 }
 
 module.exports = { registration, logIn };

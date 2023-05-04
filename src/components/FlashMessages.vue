@@ -47,6 +47,9 @@ export default {
   text-align: center;
   border-left: 4px solid #47ce64;
   margin-top: 60px;
+  justify-items: center;
+  flex-direction: column;
+  justify-content: center;
   display: flex;
   align-items: center;
   background-color: #ffffff;

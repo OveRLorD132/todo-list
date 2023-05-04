@@ -53,10 +53,9 @@ class Task {
     }
     async uploadNote(note) {
         try {
-            console.log(this.task_id);
-            let res = await axios.patch('/tasks/upload/note', {newNote: note, task_id: this.task_id});
+            await axios.patch('/tasks/upload/note', {newNote: note, task_id: this.task_id});
         } catch(err) {
-            console.log(err);
+            throw err;
         }
     }
 }

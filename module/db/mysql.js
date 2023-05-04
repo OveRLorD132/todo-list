@@ -9,9 +9,18 @@ class Database {
             database: 'todo-list'
         });
     }
+    async updateTaskProperty(property, newValue, id) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`UPDATE tasks SET \`${property}\` = ? WHERE task_id = ?`, [newValue, id], (err, result) => {
+                if(err) reject(err);
+                if(result.affectedRows === 0) reject(new Error('Data missing.'))
+                resolve();
+            });
+        })
+    }
     async addUser(user) {
         return new Promise((resolve, reject) => {
-            this.db.query("INSERT INTO users (username, `e-mail`, password) VALUES (?, ?, ?)", user, (err) => {
+            this.db.query("INSERT INTO users (username, `e-mail`, password) VALUES (?, ?, ?)", [user.username, user.email, user.password], (err) => {
                 if(err) {
                     if(/username/.test(err)) reject(new Error('This username is already in use.'));
                     reject(new Error('This email is already in use'));
@@ -31,9 +40,10 @@ class Database {
     }
     async getById(id) {
         return new Promise((resolve, reject) => {
-            this.db.query(`SELECT id, username, e-mail FROM users WHERE id = ?`, [id], (err, user) => {
+            this.db.query(`SELECT * FROM users WHERE id = ?`, [id], (err, user) => {
                 if(err) reject(err);
                 if(user.length === 0) reject(new Error(`This user doesn't exist.`));
+                delete user[0].password;
                 resolve(user[0]);
             });
         });
@@ -51,6 +61,14 @@ class Database {
         console.log(property)
         return new Promise((resolve, reject) => {
             this.db.query(`UPDATE users SET \`${property}\` = ? WHERE id = ?`, [newValue, id], (err) => {
+                if(err) reject(err);
+                resolve();
+            })
+        })
+    }
+    async addTask(user_id, task, type) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`INSERT INTO tasks (id, text, type) VALUES (?, ?, ?)`, [user_id, task, type], (err) => {
                 if(err) reject(err);
                 resolve();
             })
@@ -78,7 +96,7 @@ class Database {
             });
         });
     }
-    async loadFromList(id) {
+    async loadTasks(id) {
         return new Promise((resolve, reject) => {
             this.db.query(`SELECT * FROM tasks WHERE id = ?`, [id], (err, tasks) => {
                 if(err) reject(err);
@@ -95,7 +113,7 @@ class Database {
             });
         });
     }
-    async deleteLine(id) {
+    async deleteTask(id) {
         return new Promise((resolve, reject) => {
             this.db.query(`DELETE FROM tasks WHERE task_id = ?`, [id], (err, res) => {
                 if(err) reject(err);

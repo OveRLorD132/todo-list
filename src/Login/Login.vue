@@ -1,6 +1,6 @@
 <template>
   <LineComponent></LineComponent>
-  <FormError></FormError>
+  <FlashMessages></FlashMessages>
   <div id="mainContainer">
     <div id="loginLabel"><h1>Log In</h1></div>
     <form id="loginForm" action="/login" method="post">
@@ -14,12 +14,12 @@
 
 <script>
 import LineComponent from '../components/LineComponent.vue';
-import FormError from '../components/FormError.vue';
+import FlashMessages from '../components/FlashMessages.vue';
 import axios from 'axios';
 export default {
   components: {
     LineComponent,
-    FormError,
+    FlashMessages,
   },
     data() {
         return {

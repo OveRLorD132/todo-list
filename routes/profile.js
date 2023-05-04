@@ -3,6 +3,8 @@ let router = express.Router();
 let path = require('path');
 let fs = require('fs');
 
+let checkAuthentication = require('../module/auth/auth-check');
+
 let formidable = require('formidable');
 
 let { validateEmail, validateUsername, validateTelephone, validateCountry} = require('../module/validation/form-data-validation');
@@ -12,24 +14,23 @@ let database = new Database();
 
 console.log(database)
 
-router.get('/profile', (req, res) => {
+router.get('/profile', checkAuthentication, (req, res) => {
     res.render('Profile');
 })
 
 router.post('/profile/change/username', async(req, res, next) => {
     if(validateUsername(req.body.username, req)) {
         try {
-            await database.changeUserProp("username", req.body.username, req.session.passport.user.id);
-            fs.access(`./public/images/profile/${req.session.passport.user.username}.png`, (err) => {
+            let prevName = req.user.username;
+            await req.user.changeUserProperty('username', req.body.username);
+            fs.access(`./public/images/profile/${prevName}.png`, (err) => {
                 if(err) {
-                    req.session.passport.user.username = req.body.username;
                     req.flash('success', 'You changed your username successfully.');
                     res.redirect('/profile');
                     return;
                 }
-                fs.rename(`./public/images/profile/${req.session.passport.user.username}.png`, `./public/images/profile/${req.body.username}.png`, (err) =>{
+                fs.rename(`./public/images/profile/${prevName}.png`, `./public/images/profile/${req.body.username}.png`, (err) =>{
                     if(err) next(err);
-                    req.session.passport.user.username = req.body.username;
                     req.flash('success', 'You changed your username successfully.');
                     res.redirect('/profile');
                 })
@@ -47,8 +48,7 @@ router.post('/profile/change/username', async(req, res, next) => {
 router.post('/profile/change/e-mail', async(req, res) => {
     if(validateEmail(req.body[`e-mail`], req)) {
         try {
-            database.changeUserProp(`e-mail`, req.body[`e-mail`], req.session.passport.user.id);
-            req.session.passport.user[`e-mail`] = req.body[`e-mail`];
+            await req.user.changeUserProperty(`e-mail`, req.body[`e-mail`]);
             req.flash('success', 'You changed your e-mail succesfully');
         } catch(err) {
             console.log(err);
@@ -65,12 +65,12 @@ router.post('/profile/change/picture', async(req, res) => {
         multiples: true,
         maxFileSize: 80 * 1024 * 1024,
         uploadDir: '../public/images/profile',
-        filename: req.session.passport.user.username,
+        filename: req.username,
     });
     form.parse(req, async(err, fields, files) => {
         if(err) console.log(err);
         let imgBuffer = Buffer.from(fields.image.split(',')[1],'base64'); 
-        fs.writeFileSync(`./public/images/profile/${req.session.passport.user.username}.png`, imgBuffer);
+        fs.writeFileSync(`./public/images/profile/${req.user.username}.png`, imgBuffer);
         req.flash('success', 'Upload successful.');
         res.send('Upload successful');
     })
@@ -79,8 +79,7 @@ router.post('/profile/change/picture', async(req, res) => {
 router.post('/profile/change/country', async(req, res) => {
     if(validateCountry(req.body.country, req)) {
         try {
-            await database.changeUserProp('country', req.body.country, req.session.passport.user.id);
-            req.session.passport.user.country = req.body.country;
+            await req.user.changeUserProperty('country', req.body.country);
             req.flash('success', 'You changed country successfully.');
         } catch(err) {
             console.log(err);
@@ -93,8 +92,7 @@ router.post('/profile/change/country', async(req, res) => {
 router.post('/profile/change/telephone', async(req, res) => {
     if(validateTelephone(req.body.telephone, req)) {
         try {
-            await database.changeUserProp('telephone', req.body.country, req.session.passport.user.id);
-            req.session.passport.user.telephone = req.body.telephone;
+            await req.user.changeUserProperty('telephone', req.body.telephone);
             req.flash('success', 'You changed your phone number successfully.');
         } catch(err) {
             console.log(err);

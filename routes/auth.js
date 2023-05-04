@@ -25,21 +25,27 @@ router.get('/logout', (req, res) => {
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
+    successFlash: true,
     failureFlash: true,
 }), (req, res) => {});
 
-router.post('/registration', (req, res, next) => {
-    registration(req).then((user) => {
-        req.logIn(user, (err) => {
+router.post('/registration', async (req, res, next) => {
+    try {
+        let id = await registration(req.body);
+        req.logIn({id: id}, (err) => {
             if(err) return next(err);
+            req.flash('success', 'Registration successful.');
             res.send('Success');
-        });
-    }).catch((err) => {
-        if(/username/.test(err)) req.flash('error', 'This username is already in use.')
-        else req.flash('error', 'This email is already in use.');
-        console.log()
+        })
+    } catch(err) {
+        if(/username/.test(err)) req.flash('error', 'This username is already in use.');
+        else if(/e\-mail/.test(err)) req.flash('error', 'This e-mail us already in use.');
+        else {
+            console.error(err);
+            req.flash('error', `Server error. Something's wrong.`);
+        }
         res.send('Failure');
-    });
+    }
 });
 
 module.exports = router;
