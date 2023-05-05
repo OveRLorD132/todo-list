@@ -9,8 +9,8 @@ async function registration(user) {
     return new Promise(async (resolve, reject) => {
         try {
             user.password = await Password.prototype.hash(user.password);
-            await database.addUser(user);
-            resolve(database.selectLastInsert())
+            let id = await database.addUser(user);
+            resolve(id)
         } catch(err) {
             reject(err);
         }

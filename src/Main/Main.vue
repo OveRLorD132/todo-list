@@ -26,7 +26,7 @@
                     <task-component v-for="(task, ind) in tasks" :key="task.task_id" @click="showInfo(task)" classProp="task"
                         :task="task" :index="ind" @toggle-finishing="toggleFinishing"
                         @task-deleted="handleDeleting" @important="toImportant" :chosen-task="chosenTask"
-                        @subtask-delete="subtaskDelete" @task-error="errorHandling"
+                        @task-error="errorHandling"
                     />
                 </transition-group>
             </div>
@@ -43,13 +43,13 @@
                     <task-component v-for="(task, index) in finishedTasks" :key="task.task_id" :task="task" @click="showInfo(task)"
                         classProp="finishedTask" :index="index" @task-deleted="handleDeleting" @toggle-finishing="toggleFinishing"
                         @important="toImportant" :chosen-task="chosenTask"
-                        @subtask-delete="subtaskDelete" @task-error="errorHandling" 
+                        @task-error="errorHandling" 
                     />
                 </div>
             </transition-group>  
         </div>
-        <task-info :chosenTask="chosenTask" @new-subtask="newSubtask"
-          @subtask-delete="subtaskDelete"  @close-inf="closeInf" @delete-task="chosenTaskDelete"
+        <task-info :chosenTask="chosenTask"
+          @close-inf="closeInf" @delete-task="chosenTaskDelete"
           @task-error="errorHandling"
         >
             <task-component :task="chosenTask" classProp="taskInf" :buttVisible="false"
@@ -68,7 +68,6 @@ import FormCompoment from './components/FormCompoment.vue';
 import TaskComponent from './components/TaskComponent.vue';
 import TaskInfo from './components/TaskInfo.vue';
 import axios from 'axios';
-import Subtask from './modules/Subtask';
 import Task from './modules/Task';
 console.log(Task);
 export default {
@@ -135,10 +134,8 @@ export default {
             this.searchTasks = "";
         },
         async showInfo(task) {
+            if(!task.subtasks) await task.loadSubtasks();
             this.chosenTask = task;
-            if(!this.chosenTask.subtasks) await this.loadSubtasks(task);
-            task.isChosen = true;
-            console.log(task);
         },
         showFinishedTasks() {
             this.finishedTasksIsVisible = !this.finishedTasksIsVisible;
@@ -192,28 +189,9 @@ export default {
             this.chosenTask = "";
         },
         async toImportant() {
+            console.log(this.allTasks)
             this.showTasks(this.allTasks);
         },
-        newSubtask(newSubtask) {
-            if(this.chosenTask.subtasks) this.chosenTask.subtasks.push(newSubtask);
-            else this.chosenTask.subtasks = [newSubtask];
-        },
-        async loadSubtasks(task) {
-            try {
-                if(!task.subtasks) task.subtasks = [];
-                let subtasks = await axios.get('/tasks/load/subtasks', {params: {task_id: task.task_id}});
-                for(let subtask of subtasks.data) {
-                    subtask = new Subtask(subtask);
-                    task.subtasks.push(subtask);
-                }
-                console.log(task);
-            } catch (err){
-                console.error(err);
-            }
-        },
-        async subtaskDelete(obj) {
-            this.chosenTask.subtasks.splice(obj.index, 1);
-        }
     },
     watch: {
             searchTasks(newReq) {

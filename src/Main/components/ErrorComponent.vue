@@ -1,5 +1,5 @@
 <template>
-    <div class="errorMessage" v-if="error">
+    <div class="errorWindow" v-if="error">
         <div class="errorContainer">
             <div class="main">
                 <div class="errorLabel"><h3>ERROR</h3></div>
@@ -31,8 +31,10 @@ export default {
             this.$emit('hide-error-message');
         },
         errorValidation(error) {
-            if(error.code === 404){ 
+            if(error.code === '404'){ 
                 if(error.src === "task" || error.src === "subtask") this.errorText = `This ${error.src} doesn't exist. Try reloading page.`;
+            } else if(error.code === '500') {
+                this.errorText = `Something's wrong. Internal server error.`;
             }
             this.errorSecondLine = `Error while ${error.operation} ${error.src}.\nServer responded with code: ${error.code}`;
         },

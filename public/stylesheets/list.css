@@ -327,7 +327,7 @@
     align-items: center;
 }
 
-.errorMessage {
+.errorWindow {
     display: flex;
     align-items: center;
     justify-content: center;

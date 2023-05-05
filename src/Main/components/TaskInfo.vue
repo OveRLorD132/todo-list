@@ -11,13 +11,13 @@
                     <transition-group name="subtasks">
                         <subtask-component v-for="(subtask, index) of chosenTask.subtasks" :key="subtask.id" 
                           :subtask="subtask" :index="index"
-                          @subtask-delete="emitDelete" :chosen-task="chosenTask" @subtask-error="errorEmitting"
+                          :chosen-task="chosenTask" @subtask-error="errorEmitting"
                         />
                     </transition-group>
                     
                 </template>
             </div>
-            <subtask-input @new-subtask="emitSubtask" :chosen-task="chosenTask"/>
+            <subtask-input :chosen-task="chosenTask"/>
         </div>
         <div id="buttContainer">
             <div id="noteCont">
@@ -45,11 +45,9 @@ export default {
     },
     emits: {
         'task-error': ({operation, src, code}) => {
-            if( typeof operation !== "string" || typeof code !== "number" || typeof src !== "string") return false;
+            if( typeof operation !== "string" || typeof code !== "string" || typeof src !== "string") return false;
             return true;
         },
-        "new-subtask": (subtask) => typeof subtask === "object" && subtask !== null,
-        "subtask-delete": (index) => typeof index === "object",
         'close-inf': null,
     },
     data() {
@@ -64,12 +62,6 @@ export default {
         window.removeEventListener('beforeunload', this.uploadNote);
     },
     methods: {
-        emitSubtask(subtask) {
-            this.$emit('new-subtask', subtask);
-        },
-        emitDelete(index) {
-            this.$emit('subtask-delete', {index: index.index});
-        },
         closeInf() {
             this.$emit('close-inf');
         },

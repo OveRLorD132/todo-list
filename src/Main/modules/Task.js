@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import Subtask from "./Subtask";
+
 class Task {
     constructor(obj) {
         for(let key in obj) {
@@ -9,11 +11,14 @@ class Task {
         else this.taskPic = '/images/imp_not_chosen.png';
     }
     async changeType(type) {
-        if(type === "Important") this.taskPic = '/images/imp_chosen.png';
-        else this.taskPic = '/images/imp_not_chosen.png';
-        let res = await axios.patch('/tasks/update/type', {task_id: this.task_id, type: type})
-        if(res.data === "Success") this.type = type;
-        if(res.status = 404) return new Error();
+        try {
+            await axios.patch('/tasks/update/type', {task_id: this.task_id, type: type})
+            this.type = type;
+            if(type === "Important") this.taskPic = '/images/imp_chosen.png';
+            else this.taskPic = '/images/imp_not_chosen.png';
+        } catch(err) {
+            throw new Error(err.response.status);
+        }
     }
     async finishTask() {
         try {
@@ -24,10 +29,8 @@ class Task {
                     subtask.isFinished = this.isFinished;
                 }
             }
-            return "Success";
         } catch(err) {
-            console.log(err);
-            return 404;
+            throw new Error(err.response.status);
         }
     }
     async deleteTask() {
@@ -35,9 +38,7 @@ class Task {
             let res = await axios.delete('/tasks/delete/task', {data: this});
             return res.data;
         } catch(err) {
-            console.log(err);
-            console.log(this.subtasks);
-            return err.response.status
+            throw new Error(err.response.status);
         }
     }
     changePic() {
@@ -49,14 +50,45 @@ class Task {
     setNote(newNote) {
         if(newNote === this.note) return;
         this.note = newNote;
-        this.uploadNote(this.note);
+        try {
+            this.uploadNote(this.note);
+        } catch(err) {
+            throw err;
+        }
+    }
+    async editTask(text) {
+        try {
+            await axios.patch('/tasks/edit/task', {text: text, task_id: this.task_id});
+            this.text = text;
+        } catch(err) {
+            throw new Error(err.response.status);
+        }
     }
     async uploadNote(note) {
         try {
             await axios.patch('/tasks/upload/note', {newNote: note, task_id: this.task_id});
         } catch(err) {
-            throw err;
+            throw new Error(err.response.status);
         }
+    }
+    async loadSubtasks() {
+        try {
+            let subtasks = await axios.get('/tasks/load/subtasks', {params: {task_id: this.task_id}});
+            this.subtasks = [];
+            for(let subtask of subtasks.data) {
+                this.subtasks.push(new Subtask(subtask));
+            }
+        } catch(err) {
+            console.log(err);
+            throw new Error(err.response.status);
+        }
+    }
+    addSubtask(subtask) {
+        subtask = new Subtask(subtask);
+        this.subtasks.push(subtask)
+    }
+    deleteSubtask(index) {
+        if(this.subtasks) this.subtasks.splice(index, 1);
     }
 }
 

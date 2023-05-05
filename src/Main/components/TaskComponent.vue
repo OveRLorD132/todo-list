@@ -5,7 +5,17 @@
                 <div class="finished" @click.stop="finishTask(task, index)">
                     <img class="doneImg" src="/images/done.png">
                 </div>
-                <div class="taskText" :style="{textDecoration: task.isFinished ? 'line-through' : 'none'}">{{ task.text }}</div>
+                <div class="edit" @click.stop="showEditForm">
+                    <img class="editImg" src="/images/edit.png">
+                </div>
+                <div class="taskText" :style="{textDecoration: task.isFinished ? 'line-through' : 'none'}" v-if="!isEditing">
+                    {{ task.text }}
+                </div>
+                <div class="editingFormContainer" v-if="isEditing">
+                    <form @submit.prevent="editTask">
+                        <input type="text" v-model="taskTextEdit" class="editInput"/>
+                    </form>
+                </div>
             </div>
             <div class="buttons">
                 <div @click.stop="toImportant(task)"
@@ -21,7 +31,7 @@
             <transition-group name="subtasks-list">
                 <subtask-component v-for="(subtask, index) in task.subtasks" 
                     :subtask="subtask" :chosen-task="chosenTask" :index="index" :key="subtask.id"
-                    @subtask-delete="emitDelete" @subtask-error="errorEmit"
+                    @subtask-error="errorEmit"
                     >
                 </subtask-component>
             </transition-group>
@@ -45,21 +55,19 @@ export default {
     },
     emits: {
         'task-error': ({operation, src, code}) => {
-            if( typeof operation !== "string" || typeof code !== "number" || typeof src !== "string") return false;
+            if( typeof operation !== "string" || typeof code !== "string" || typeof src !== "string") return false;
             else return true;
         },
         'important': null, //event to update view on page
         'task-deleted': (obj) => typeof obj === "object",
         'toggle-finishing': (obj) => typeof obj === "object",
-        'subtask-delete': (index) => typeof index === "object",
     },
     data() {
         return {
             isDisabled: false,
+            isEditing: false,
+            taskTextEdit: this.task.text,
         }
-    },
-    created() {
-        //console.log(this.classProp);
     },
     methods: {
         async toImportant(task) {
@@ -69,24 +77,34 @@ export default {
                 else await task.changeType("Important");
                 this.$emit('important');
             } catch(err) {
-                console.log(err);
-                this.$emit('task-error',{operation: 'changing type of', src: 'task', code: 404});
+                this.$emit('task-error',{operation: 'changing type of', src: 'task', code: err.message});
             }
         },
         async deleteElem(task, index) {
-            let res = await task.deleteTask();
-            if(res === 404) this.$emit('task-error', {operation: 'deleting', src: "task", code: res})
-            if(res === "Success") this.$emit('task-deleted', {task: task, index: index})
-            
+            try {
+                await task.deleteTask();
+                this.$emit('task-deleted', {task: task, index: index})
+            } catch(err) {
+                this.$emit('task-error', {operation: 'deleting', src: 'task', code: err.message});
+            }
         },
         async finishTask(task, index) {
-            console.log(this.isDisabled);
             if(this.isDisabled) return;
             this.isDisabled = true;
-            //setTimeout(() => {console.log(this.isDisabled)}, 1000);
-            let res = await task.finishTask();
-            if(res === 404) this.$emit('task-error', {operation: 'finishing', src: "task", code: res})
-            if(res === "Success")this.$emit('toggle-finishing', {task: task, index: index});
+            try {
+                await task.finishTask();
+                this.$emit('toggle-finishing', {task: task, index: index});
+            } catch(err) {
+                this.$emit('task-error', {operation: 'finishing', src: 'task', code: err.message});
+            }
+        },
+        showEditForm() {
+            this.isEditing = !this.isEditing;
+        },
+        async editTask() {
+            if(this.taskTextEdit !== "") await this.task.editTask(this.taskTextEdit);
+            this.isEditing = false;
+
         },
         changePic(task) {
             task.changePic();
@@ -96,9 +114,6 @@ export default {
         },
         emitCompleted(obj) {
             this.$emit('subtask-completed', {index: obj.index});    
-        },
-        emitDelete(obj) {
-            this.$emit('subtask-delete', {index: obj.index});
         },
         errorEmit(obj) {
             this.$emit('task-error', obj);
@@ -129,5 +144,18 @@ export default {
 .subtasks-list-leave-to {
     opacity: 0;
     transform: translateX(20px);
+}
+
+.editInput {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 45px !important;
+}
+
+.editImg {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    margin-right: 20px;
 }
 </style>

@@ -9,23 +9,14 @@ class Database {
             database: 'todo-list'
         });
     }
-    async updateTaskProperty(property, newValue, id) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE tasks SET \`${property}\` = ? WHERE task_id = ?`, [newValue, id], (err, result) => {
-                if(err) reject(err);
-                if(result.affectedRows === 0) reject(new Error('Data missing.'))
-                resolve();
-            });
-        })
-    }
     async addUser(user) {
         return new Promise((resolve, reject) => {
-            this.db.query("INSERT INTO users (username, `e-mail`, password) VALUES (?, ?, ?)", [user.username, user.email, user.password], (err) => {
+            this.db.query("INSERT INTO users (username, `e-mail`, password) VALUES (?, ?, ?)", [user.username, user.email, user.password], (err, res) => {
                 if(err) {
                     if(/username/.test(err)) reject(new Error('This username is already in use.'));
                     reject(new Error('This email is already in use'));
                 }
-                resolve();
+                resolve(res.insertId);
             });
         });
     }
@@ -37,6 +28,30 @@ class Database {
                 resolve(user[0]);
             });
         });
+    }
+    async getByProperty(table, property, value) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`SELECT * FROM \`${table}\` WHERE \`${property}\` = ?`, [value], (err, result) => {
+                if(err) reject(err);
+                resolve(result);
+            })
+        })
+    }
+    async changeTableProperty(table, property, value, findProp, findPropValue) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`UPDATE \`${table}\` SET \`${property}\` = ? WHERE \`${findProp}\` = ?` , [value, findPropValue], (err, res) => {
+                if(err) reject(err);
+                resolve(res);
+            })
+        })
+    }
+    async deleteFromTable(table, findProperty, findPropertyValue) {
+        return new Promise((resolve, reject) => {
+            this.db.query(`DELETE FROM \`${table}\` WHERE \`${findProperty}\` = ?`, [findPropertyValue], (err, res) => {
+                if(err) reject(err);
+                resolve(res);
+            })
+        })
     }
     async getById(id) {
         return new Promise((resolve, reject) => {
@@ -68,93 +83,25 @@ class Database {
     }
     async addTask(user_id, task, type) {
         return new Promise((resolve, reject) => {
-            this.db.query(`INSERT INTO tasks (id, text, type) VALUES (?, ?, ?)`, [user_id, task, type], (err) => {
+            this.db.query(`INSERT INTO tasks (id, text, type) VALUES (?, ?, ?)`, [user_id, task, type], (err, res) => {
                 if(err) reject(err);
-                resolve();
+                resolve(res.insertId);
             })
         })
     }
-    async addToList(id, task, type) {
+    async addSubtask(task_id, text) {
         return new Promise((resolve, reject) => {
-            this.db.query(`INSERT INTO tasks (id, text, type) VALUES (?, ?, ?)`, [id, task, type], async (err) => {
-                if(err) reject(err);
-                try {
-                    let lastId = await this.selectLastInsert();
-                    let task = await this.getTaskById(lastId);
-                    resolve(task);
-                } catch(err) {
-                    reject(err);
-                }
-            });
+            this.db.query(`INSERT INTO subtasks (task_id, text) VALUES (?, ?)`, [task_id, text], (err, res) => {
+                if(err) reject(err)
+                resolve(res.insertId);
+            })
         })
-    }
-    async getTaskById(id) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`SELECT * FROM tasks WHERE task_id = ?`, [id], (err, task) => {
-                if(err) reject(err);
-                resolve(task[0]);
-            });
-        });
     }
     async loadTasks(id) {
         return new Promise((resolve, reject) => {
             this.db.query(`SELECT * FROM tasks WHERE id = ?`, [id], (err, tasks) => {
                 if(err) reject(err);
                 resolve(tasks);
-            });
-        });
-    }
-    async changeType(id, type) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE tasks SET type = ? WHERE task_id = ?`, [type, id], (err, res) => {
-                if(err) reject(err);
-                if(res.affectedRows === 0) reject(new Error("Data missing."));
-                resolve();
-            });
-        });
-    }
-    async deleteTask(id) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`DELETE FROM tasks WHERE task_id = ?`, [id], (err, res) => {
-                if(err) reject(err);
-                if(res.affectedRows === 0) reject(new Error("Data missing."));
-                this.clearSubtasks(id);
-                resolve();
-            });
-        });
-    }
-    async setFinished(id, bool) {
-        console.log(bool);
-        return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE tasks SET isFinished = ? WHERE task_id = ?`, [bool ,id], (err, res) => {
-                if(err) reject(err);
-                if(res.affectedRows === 0) reject(new Error("Data missing."));
-                resolve();
-            })
-        });
-    }
-    async insertSubtask(task_id, text) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`INSERT INTO subtasks SET task_id = ?, text = ?`, [task_id, text], async (err) => {
-                if(err) reject(err);
-                try {
-                    let lastId = await this.selectLastInsert();
-                    console.log(lastId);
-                    let subtask = await this.getSubtask(lastId)
-                    console.log(subtask);
-                    //let subtask = await this.getSubtasksById(task_id);
-                    resolve(subtask);
-                } catch (err) {
-                    reject(err);
-                }
-            });
-        });
-    }
-    async getSubtasksById(task_id) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`SELECT * FROM subtasks WHERE task_id = ?`, [task_id], (err, result) => {
-                if(err) reject(err);
-                resolve(result);
             });
         });
     }
@@ -166,58 +113,6 @@ class Database {
             });
         });
     }
-    async getSubtask(id) {
-        console.log(id);
-        return new Promise((resolve, reject) => {
-            this.db.query(`SELECT * FROM subtasks WHERE id = ?`, [id], (err, subtask) => {
-                if(err) reject(err);
-                resolve(subtask[0]);
-            });
-        });
-    }
-    async completeSubtask(id, bool) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE subtasks SET isFinished = ? WHERE id = ?`, [bool, id], (err, res) => {
-                if(err) reject(err);
-                if(res.affectedRows === 0) reject(new Error("Data missing."));
-                resolve();
-            });
-        });
-    }
-    async deleteSubtask(id) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`DELETE FROM subtasks WHERE id = ?`, [id], (err, res) => {
-                if(err) reject(err);
-                if(res.affectedRows === 0) reject(new Error("Data missing."));
-                resolve();
-            });
-        });
-    }
-    async clearSubtasks(task_id) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`DELETE FROM subtasks WHERE task_id = ?`, [task_id], (err) => {
-                if(err) reject(err);
-                resolve();
-            })
-        })
-    }
-    async addNote(note, id) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE tasks SET note = ? WHERE task_id = ?`, [note, id], (err) => {
-                if(err) reject(err);
-                resolve();
-            })
-        })
-    }
-    async finishSubtasks(task_id, bool) {
-        return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE subtasks SET isFinished = ? WHERE task_id = ?`, [bool, task_id], (err) => {
-                if(err) reject(err);
-                resolve();
-            })
-        })
-    }
 }
-
 
 module.exports = Database;

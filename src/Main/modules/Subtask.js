@@ -9,21 +9,17 @@ class Subtask {
     async completeSubtask() {
         try {
             let bool = this.isFinished ? 0 : 1;
-            let res = await axios.patch('/tasks/completed/subtask', {task_id: this.id, bool: bool});
-            if(res.data === "Success") this.isFinished = bool;
-            return "Success";
+            await axios.patch('/tasks/completed/subtask', {task_id: this.id, bool: bool});
+            this.isFinished = bool;
         } catch(err) {
-            console.log(err);
-            return 404;
+            throw new Error(err.response.status);
         }
     }
     async deleteSubtask() {
         try {
-            let res = await axios.delete(`/tasks/delete/subtask?id=${this.id}`);
-            if(res.data === "Success") return "Success";
+            await axios.delete(`/tasks/delete/subtask?id=${this.id}`);
         } catch(err) {
-            console.log(err);
-            return 404;
+            throw new Error(err.response.status);
         }
     }
 }
