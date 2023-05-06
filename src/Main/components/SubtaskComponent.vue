@@ -3,8 +3,16 @@
          <div class="subtaskLeft" key="left">
              <div class="completeButt" @click="subtaskComplete">
                  <img class="sComplete" src="/images/s-complete.png" />
-           </div>
-           <div class="subtaskText" :style="{textDecoration: subtask.isFinished ? 'line-through' : 'none'}">{{subtask.text}}</div>
+            </div>
+            <div class="edit" @click="showEdit">
+                <img src="/images/edit.png" class="editImg"/>
+            </div>
+           <div class="subtaskText" :style="{textDecoration: subtask.isFinished ? 'line-through' : 'none'}" v-if="!isEditing">
+            {{subtask.text}}
+            </div>
+            <form @submit.prevent="editSubtask" v-if="isEditing">
+                <input type="text" v-model="subtaskEditText" class="editInput"/>
+            </form>
         </div>
         <div class="subtaskDelete" key="right" @click="subtaskDelete">
             <img class="sDelete" src="/images/s-delete.png"/>
@@ -16,7 +24,8 @@
 export default {
     data() {
         return {
-            
+            isEditing: false,
+            subtaskEditText: this.subtask.text,
         }
     },
     props: {
@@ -46,6 +55,19 @@ export default {
             } catch(err) {
                 this.$emit('subtask-error', {operation: 'deleting', src: 'subtask', code: err.message});
             }
+        },
+        showEdit() {
+            this.isEditing = !this.isEditing;
+        },
+        async editSubtask() {
+            try {
+                if(this.subtaskEditText !== "" && this.subtaskEditText !== this.subtask.text) {
+                    await this.subtask.editSubtask(this.subtaskEditText)
+                }
+                this.isEditing = !this.isEditing;
+            } catch(err) {
+                this.$emit('subtask-error', {operation: 'editing', src: 'subtask', code: err.message});
+            }
         }
     },
     computed: {
@@ -59,5 +81,9 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.editImg {
+    margin-right: 10px;
+    margin-top: 5px;
+}
 </style>

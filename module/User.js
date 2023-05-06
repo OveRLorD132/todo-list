@@ -2,6 +2,8 @@ let Database = require('./db/mysql');
 
 let Password = require('./Password');
 
+let Cache = require('./db/redis');
+
 let database = new Database();
 
 class User {

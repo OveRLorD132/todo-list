@@ -83,9 +83,13 @@ class Task {
             throw new Error(err.response.status);
         }
     }
-    addSubtask(subtask) {
-        subtask = new Subtask(subtask);
-        this.subtasks.push(subtask)
+    async addSubtask(subtask) {
+        try {
+            let newSubtask = await axios.post('/tasks/new/subtask', {task_id: this.task_id, subtask: subtask});
+            this.subtasks.push(new Subtask(newSubtask.data));
+        } catch(err) {
+            throw new Error(err.response.status);
+        }
     }
     deleteSubtask(index) {
         if(this.subtasks) this.subtasks.splice(index, 1);

@@ -7,6 +7,10 @@ let { logIn } = require('../../auth/authentication');
 
 let Database = require('../../db/mysql');
 
+let Cache = require('../../db/redis');
+
+let cache = new Cache();
+
 let database = new Database();
 
 passport.use(new LocalStrategy((username, password, done) => {
@@ -19,9 +23,9 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-    console.log(id);
     if(id) {
         let user = await database.getById(id);
+        let res = cache.cacheUserProfile(user);
         done(0, new User(user));
     } else done(0, {});
 });

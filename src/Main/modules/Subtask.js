@@ -22,6 +22,14 @@ class Subtask {
             throw new Error(err.response.status);
         }
     }
+    async editSubtask(text) {
+        try {
+            await axios.patch('/tasks/edit/subtask', {text: text, id: this.id});
+            this.text = text;
+        } catch(err) {
+            throw err;
+        }
+    }
 }
 
 export default Subtask;

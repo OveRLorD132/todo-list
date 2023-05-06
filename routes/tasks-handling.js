@@ -44,8 +44,12 @@ router.post('/tasks/new/subtask', async(req, res) => {
         res.status(200);
         res.send(subtask);
     } catch(err) {
-        console.error(err);
-        res.status(500);
+        if(err.message === "Data missing.") res.status(404);
+        else {
+            console.error(err);
+            res.status(500);
+        }
+        res.send('Error');
     }
 });
 
@@ -76,6 +80,21 @@ router.patch('/tasks/edit/task', async(req, res) => {
             res.status(500);
         }
         res.send('Error');
+    }
+})
+
+router.patch('/tasks/edit/subtask', async(req, res) => {
+    try {
+        await Subtasks.prototype.editSubtask(req.body.text, req.body.id);
+        res.status(200);
+        res.send('OK');
+    } catch(err) {
+        if(err.message === "Data missing.") res.status(404);
+        else {
+            console.error(err);
+            res.status(500);
+        }
+        res.send('Error')
     }
 })
 

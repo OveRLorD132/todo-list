@@ -17,7 +17,7 @@
                     
                 </template>
             </div>
-            <subtask-input :chosen-task="chosenTask"/>
+            <subtask-input :chosen-task="chosenTask" @subtask-error="errorEmitting"/>
         </div>
         <div id="buttContainer">
             <div id="noteCont">

@@ -12,7 +12,7 @@
                     {{ task.text }}
                 </div>
                 <div class="editingFormContainer" v-if="isEditing">
-                    <form @submit.prevent="editTask">
+                    <form @submit.prevent="editTask" class="editForm">
                         <input type="text" v-model="taskTextEdit" class="editInput"/>
                     </form>
                 </div>
@@ -102,9 +102,12 @@ export default {
             this.isEditing = !this.isEditing;
         },
         async editTask() {
-            if(this.taskTextEdit !== "") await this.task.editTask(this.taskTextEdit);
-            this.isEditing = false;
-
+            try {
+                if(this.taskTextEdit !== "" && this.taskTextEdit !== this.task.text) await this.task.editTask(this.taskTextEdit);
+                this.isEditing = false;
+            } catch(err) {
+                this.$emit('task-error', {operation: 'editing', src: 'task', code: err.message});
+            }
         },
         changePic(task) {
             task.changePic();
@@ -149,7 +152,8 @@ export default {
 .editInput {
     margin: 0 !important;
     padding: 0 !important;
-    height: 45px !important;
+    height: 100% !important;
+    background-color: transparent !important;
 }
 
 .editImg {
@@ -157,5 +161,31 @@ export default {
     width: 20px;
     height: 20px;
     margin-right: 20px;
+}
+
+.editForm {
+    display: flex;
+    flex-direction: row;
+}
+
+.editButton {
+    margin-right: 10px;
+    background-color: #D7F7F7;
+}
+
+.editButtons {
+    cursor: pointer;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+.editingFormContainer {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
 }
 </style>

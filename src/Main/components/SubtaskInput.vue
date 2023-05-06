@@ -12,6 +12,12 @@ export default {
     props: {
         chosenTask: Object,
     },
+    emits: {
+        'subtask-error': (operation, src, code) => {
+            if(typeof operation === 'string' && typeof src === 'string' && typeof code === 'string') return true;
+            return false;
+        }
+    },
     data() {
         return {
             newSubtask: ""
@@ -21,11 +27,10 @@ export default {
         async addSubtask() {
             if(this.newSubtask === "") return
             try {
-                let subtask = await axios.post('/tasks/new/subtask', {task_id: this.chosenTask.task_id, subtask: this.newSubtask});
-                this.chosenTask.addSubtask(subtask.data);
+                await this.chosenTask.addSubtask(subtask.data);
                 this.newSubtask = "";
             } catch(err) {
-                console.error(err);
+                this.$emit('subtask-error', {operation: 'adding', src: 'subtask', code: err.message});
             }
         }
     }
