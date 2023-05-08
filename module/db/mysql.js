@@ -14,9 +14,10 @@ class Database {
             this.db.query("INSERT INTO users (username, `e-mail`, password) VALUES (?, ?, ?)", [user.username, user.email, user.password], (err, res) => {
                 if(err) {
                     if(/username/.test(err)) reject(new Error('This username is already in use.'));
-                    reject(new Error('This email is already in use'));
+                    else reject(new Error('This email is already in use'));
+                } else {
+                    resolve(res.insertId);
                 }
-                resolve(res.insertId);
             });
         });
     }
@@ -63,21 +64,12 @@ class Database {
             });
         });
     }
-    async getPropertyById(property, id) {
+    async getTableProperty(table, property, findProperty, findPropertyValue) {
         console.log(arguments);
         return new Promise((resolve, reject) => {
-            this.db.query(`SELECT \`${property}\` FROM users WHERE id = ?`, [id], (err, res) => {
+            this.db.query(`SELECT \`${property}\` FROM \`${table}\` WHERE \`${findProperty}\` = ?`, [findPropertyValue], (err, res) => {
                 if(err) reject(err);
                 resolve(res[0]);
-            })
-        })
-    }
-    async changeUserProp(property, newValue, id) {
-        console.log(property)
-        return new Promise((resolve, reject) => {
-            this.db.query(`UPDATE users SET \`${property}\` = ? WHERE id = ?`, [newValue, id], (err) => {
-                if(err) reject(err);
-                resolve();
             })
         })
     }

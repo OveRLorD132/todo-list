@@ -27,7 +27,7 @@ export default {
         async addSubtask() {
             if(this.newSubtask === "") return
             try {
-                await this.chosenTask.addSubtask(subtask.data);
+                await this.chosenTask.addSubtask(this.newSubtask);
                 this.newSubtask = "";
             } catch(err) {
                 this.$emit('subtask-error', {operation: 'adding', src: 'subtask', code: err.message});

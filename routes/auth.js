@@ -39,7 +39,7 @@ router.post('/registration', async (req, res, next) => {
         })
     } catch(err) {
         if(/username/.test(err)) req.flash('error', 'This username is already in use.');
-        else if(/e\-mail/.test(err)) req.flash('error', 'This e-mail us already in use.');
+        else if(/email/.test(err)) req.flash('error', 'This e-mail us already in use.');
         else {
             console.error(err);
             req.flash('error', `Server error. Something's wrong.`);

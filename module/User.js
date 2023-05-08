@@ -1,10 +1,7 @@
-let Database = require('./db/mysql');
-
 let Password = require('./Password');
 
-let Cache = require('./db/redis');
+let Users = require('./Users');
 
-let database = new Database();
 
 class User {
     constructor(obj) {
@@ -14,16 +11,15 @@ class User {
     }
     async changeUserProperty(property, newValue) {
         try {
-            await database.changeUserProp(property, newValue, this.id);
+            await Users.prototype.changeUserProperty(property, newValue, this.id);
             this[property] = newValue;
-            console.log(this);
         } catch(err) {
             throw err;
         }
     }
     async getPassword() {
         try {
-            return await database.getPropertyById('password', this.id);
+            return await Users.prototype.getPassword(this.id);
         } catch(err) {
             throw err;
         }
@@ -34,7 +30,7 @@ class User {
             let match = await Password.prototype.comparePassword(oldPassword, result.password);
             if(!match) throw new Error('Incorrect password.');
             let hash = await Password.prototype.hash(newPassword);
-            await database.changeUserProp('password', hash, this.id);
+            await Users.prototype.changeUserProperty('password', hash, this.id);
         } catch(err) {
             throw err;
         }

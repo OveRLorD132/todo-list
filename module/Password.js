@@ -12,8 +12,6 @@ class Password {
     }
     async comparePassword(password, hash) {
         try {
-            console.log(password);
-            console.log(hash);
             let match = bcrypt.compare(password, hash);
             return match;
         } catch(err) {

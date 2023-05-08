@@ -3,7 +3,7 @@ let path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/Main/main.js',
+    entry: './src/Error/error.js',
     cache: {
         type: 'filesystem',
         allowCollectingMemory: true,
@@ -14,8 +14,8 @@ module.exports = {
         splitChunks: false,
     },
     output: {
-        path: path.resolve(__dirname, 'public', 'javascripts', 'Main'),
-        filename: 'main.js',
+        path: path.resolve(__dirname, 'public', 'javascripts', 'Error'),
+        filename: 'error.js',
         clean: true
     },
     module: {

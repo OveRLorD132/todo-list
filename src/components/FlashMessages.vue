@@ -17,7 +17,6 @@ export default {
     },
     mounted() {
         axios.get('/flash-messages').then((messages) => {
-            console.log(messages);
             if(messages.data.error) {
               this.flashMess = messages.data.error[0];
               this.messageClass = 'errorMessage';

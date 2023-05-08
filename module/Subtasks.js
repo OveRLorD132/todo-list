@@ -1,11 +1,19 @@
 let Database = require('../module/db/mysql');
 
+let Cache = require('./db/redis');
+
 let database = new Database();
+
+let cache = new Cache();
 
 class Subtasks {
     async addSubtask(task_id, text) {
         try {
-            let task = await database.getByProperty('tasks', 'task_id', task_id);
+            let task = await cache.getTaskId(task_id);
+            if(!task) {
+                task = await database.getByProperty('tasks', 'task_id', task_id);
+                if(task.length > 0)await cache.cacheTaskId(task_id);
+            }
             if(task.length === 0) throw new Error('Data missing.');
             let id = await database.addSubtask(task_id, text);
             return {

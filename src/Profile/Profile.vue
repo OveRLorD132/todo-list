@@ -59,7 +59,6 @@ export default {
         setProfile(obj) {
             this.userProfile = obj.user;
             this.username = obj.user.username;
-            console.log(obj.user);
         },
         showUpload() {
             this.uploadIsVisible = true;

@@ -1,11 +1,20 @@
 <template>
-  <Transition name="show-links">
-    <div class="linksCont" v-if="linksAreVisible">
-      <div class="links">
-        <img class="linksPic" :src="profilePicSrc">
-        <div class="rightInfo">
-          <div><h2 class="usernameLabel">{{ userProfile.username }}</h2></div>
-          <div id="infoCont">
+  <div id="line">
+    <div id="mainLink"><a href="/tasks" name="Main Page">Main Page</a></div>
+    <slot></slot>
+    <div ref="links" id="profileLinks">
+      <template v-if="userProfile">
+        <div class="profileCont">
+          <img class="profileImg" id="linePic" :src="profilePicSrc" @click="showLinks">
+        </div>
+      </template>
+      <Transition name="show-links">
+        <div class="linksCont" v-if="linksAreVisible">
+        <div class="links">
+          <img class="linksPic" :src="profilePicSrc">
+          <div class="rightInfo">
+            <div><h2 class="usernameLabel">{{ userProfile.username }}</h2></div>
+            <div id="infoCont">
             <div>
               <div>E-mail:</div>
               <div id="emailInfo">{{ userProfile[`e-mail`] }}</div>
@@ -19,15 +28,6 @@
       </div>
     </div>
   </Transition>
-  <div id="line">
-    <div id="mainLink"><a href="/tasks" name="Main Page">Main Page</a></div>
-    <slot></slot>
-    <div ref="links" id="profileLinks">
-      <template v-if="userProfile">
-        <div class="profileCont">
-          <img class="profileImg" id="linePic" :src="profilePicSrc" @click="showLinks">
-        </div>
-      </template>
       <template v-if="!userProfile">
         <a href="/login" name="Login" class="loginLink">Log In</a>
         <a href="/registration" name="Registration">Registration</a>
@@ -51,7 +51,6 @@ export default {
     mounted() {
         axios.get('/current/user/profile').then((profile) => {
             if(profile.data !== "User not logged in") this.userProfile = new User(profile.data);
-            console.log(this.userProfile);
             this.$emit('user-profile', {user: this.userProfile});
         }).then(() => {
           axios.get('/user/image').then((bool) => {
@@ -70,12 +69,10 @@ export default {
       hideLinks(event) {
         if(this.linksAreVisible) {
           let element = document.getElementsByClassName('linksCont')[0];
-          console.log(event)
           if(!element.contains(event.target) && event.target !== document.getElementById('linePic')) {
             this.linksAreVisible = false;
           }
         }
-
       }
     }
 }
@@ -143,8 +140,8 @@ export default {
 }
 
 .linksCont {
-  margin-top: 45px;
-  width: 100%;
+  right: 0;
+  top: 45px;
   display: flex;
   justify-content: flex-end;
   position: fixed;

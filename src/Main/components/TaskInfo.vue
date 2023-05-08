@@ -121,7 +121,8 @@ export default {
     margin-left: 20px;
 }
 
-#taskInfContainer {
+#taskBlock {
+    max-height: 450px;
     overflow-y: scroll;
     overflow-x: hidden;
 }

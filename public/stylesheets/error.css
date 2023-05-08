@@ -1,0 +1,15 @@
+.errorMainLink {
+    color: #2C40C2;
+}
+
+.errorCode {
+    padding: 0;
+    margin: 0;
+    margin-bottom: 10px;
+    font-size: 200px;
+}
+
+.mainLink {
+    padding: 0;
+    margin: 0;
+}

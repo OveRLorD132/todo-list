@@ -15,8 +15,11 @@
         />
         <div id="tasksContainer">
             <div id="taskLabel">
-                <div v-if="buttIsVisible" @click="AddPanel"><img id="menuImg" src="/images/menu.png"></div> 
-                <div id="label"> Tasks</div>
+                <div id="labelCont">
+                    <div v-if="buttIsVisible" @click="AddPanel"><img id="menuImg" src="/images/menu.png"></div> 
+                    <div id="label"> Tasks</div>
+                </div>
+                <TaskAdding :chosen-task="chosenTask" :all-tasks="allTasks" @task-added="showTasks(allTasks)"></TaskAdding>
             </div>
             <form-compoment @new-task="addTask"
             :curr-channel="currChannel" ref="form">
@@ -60,6 +63,7 @@
 </template>
 
 <script>
+import TaskAdding from './components/TaskAdding.vue';
 import FlashMessages from '../components/FlashMessages.vue';
 import LineComponent from '../components/LineComponent.vue';
 import ErrorComponent from './components/ErrorComponent.vue';
@@ -69,7 +73,6 @@ import TaskComponent from './components/TaskComponent.vue';
 import TaskInfo from './components/TaskInfo.vue';
 import axios from 'axios';
 import Task from './modules/Task';
-console.log(Task);
 export default {
     components: {
         LineComponent,
@@ -78,7 +81,8 @@ export default {
         FormCompoment,
         TaskComponent,
         TaskInfo,
-        FlashMessages
+        FlashMessages,
+        TaskAdding,
     },
     props: {
         buttDisabled: Boolean,
@@ -170,19 +174,16 @@ export default {
             if(response.task.isFinished) {
                 this.tasks.splice(response.index, 1);
                 this.finishedTasks.push(response.task);
-                console.log(this.allTasks);
                 return;
             } else if(!response.task.isFinished) {
                 console.log('not finished');
                 this.finishedTasks.splice(response.index, 1);
                 this.tasks.push(response.task);
-                console.log(this.allTasks);
                 return;
             }
             this.isDisabled = false;
         },
         errorHandling(err) {
-            console.log(err);
             this.error = err;
         },
         closeInf() {
@@ -213,6 +214,11 @@ export default {
 </script>
 
 <style>
+#labelCont {
+    display: flex;
+    flex-direction: row;
+}
+
 #profileLinks {
     display: flex;
     flex-direction: row;

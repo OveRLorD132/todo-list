@@ -1,6 +1,5 @@
 let express = require('express');
 let router = express.Router();
-let path = require('path');
 let fs = require('fs');
 
 let checkAuthentication = require('../module/auth/auth-check');
@@ -8,11 +7,6 @@ let checkAuthentication = require('../module/auth/auth-check');
 let formidable = require('formidable');
 
 let { validateEmail, validateUsername, validateTelephone, validateCountry} = require('../module/validation/form-data-validation');
-
-let Database = require('../module/db/mysql');
-let database = new Database();
-
-console.log(database)
 
 router.get('/profile', checkAuthentication, (req, res) => {
     res.render('Profile');

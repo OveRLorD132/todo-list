@@ -79,7 +79,6 @@ class Task {
                 this.subtasks.push(new Subtask(subtask));
             }
         } catch(err) {
-            console.log(err);
             throw new Error(err.response.status);
         }
     }

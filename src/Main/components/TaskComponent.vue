@@ -73,7 +73,7 @@ export default {
         async toImportant(task) {
             try {
                 let type = task.type;
-                if(type === "Important") await task.changeType("Today");
+                if(type === "Important") await task.changeType("All tasks");
                 else await task.changeType("Important");
                 this.$emit('important');
             } catch(err) {
@@ -124,7 +124,6 @@ export default {
     },
     watch: {
         buttDisabled(newVal, oldval) {
-            console.log(oldval);
             this.isDisabled = newVal;
         } 
     }

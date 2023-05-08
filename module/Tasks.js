@@ -1,14 +1,16 @@
 let Database = require('./db/mysql');
 
+let Cache = require('./db/redis');
+
+let cache = new Cache();
+
 let database = new Database();
 
 class Tasks {
     async addTask(user_id, task, type) {
-        await database.addTask(user_id, task, type);
-        let lastId = await database.selectLastInsert();
-        console.log(lastId);
+        let res = await database.addTask(user_id, task, type);
         let newTask = {
-            task_id: lastId,
+            task_id: res,
             text: task,
             type: type,
         }
@@ -46,6 +48,7 @@ class Tasks {
         try {
             let res = await database.deleteFromTable('tasks', 'task_id', task_id);
             await database.deleteFromTable('subtasks', 'task_id', task_id);
+            await cache.deleteCachedId(task_id);
             if(res.affectedRows === 0) throw new Error('Data missing.');
         } catch(err) {
             throw err;

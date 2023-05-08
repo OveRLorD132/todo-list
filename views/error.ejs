@@ -1,9 +1,25 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+        <link href="/stylesheets/style.css" rel="stylesheet">
+        <link href="/stylesheets/error.css" rel="stylesheet">
+        <title>Error</title>
     </head>
     <body>
-        <div> ERROR </div>
+        <div id="app">
+
+        </div>
+        <div class="serverErrorContainer">
+            <div class="serverErrorLabel">
+                <h1 class="errorCode"><%= error %></h1>
+                <div class="mainLink">
+                    <h4>
+                        Error. Something's wrong.
+                        Return to <a class="errorMainLink" href="/tasks">main</a> page.
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <script src="/javascripts/Error/error.js"></script>
     </body>
 </html>
