@@ -91,6 +91,11 @@ Please make sure you have Node.js and npm installed on your system. Additionally
    cd /path/to/repository
    node app.js
 6. Open your web browser and go to http://localhost:3000/ to access the Todo-List application.
+If you don't want to registrer you can login usin this data: 
+
+   username: overlord
+
+   password: overlord
 
 Ensure that Redis server is running and accessible, and MySQL is properly configured with the imported database.
 
